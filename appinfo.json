@@ -1,0 +1,145 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "sawyerv726@gmail.com",
+    "longName": "Games",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/down_arrow.png",
+                "name": "DOWN_ARROW",
+                "type": "png"
+            },
+            {
+                "file": "images/white_rook_in_white.png",
+                "name": "WHITE_ROOK_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/white_rook_in_black.png",
+                "name": "WHITE_ROOK_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/white_queen_in_white.png",
+                "name": "WHITE_QUEEN_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/white_queen_in_black.png",
+                "name": "WHITE_QUEEN_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/white_pawn_in_white.png",
+                "name": "WHITE_PAWN_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/white_pawn_in_black.png",
+                "name": "WHITE_PAWN_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/white_knight_in_white.png",
+                "name": "WHITE_KNIGHT_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/white_knight_in_black.png",
+                "name": "WHITE_KNIGHT_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/white_king_in_white.png",
+                "name": "WHITE_KING_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/white_king_in_black.png",
+                "name": "WHITE_KING_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/white_bishop_in_white.png",
+                "name": "WHITE_BISHOP_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/white_bishop_in_black.png",
+                "name": "WHITE_BISHOP_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_rook_in_white.png",
+                "name": "BLACK_ROOK_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_rook_in_black.png",
+                "name": "BLACK_ROOK_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_queen_in_white.png",
+                "name": "BLACK_QUEEN_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_queen_in_black.png",
+                "name": "BLACK_QUEEN_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_pawn_in_white.png",
+                "name": "BLACK_PAWN_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_pawn_in_black.png",
+                "name": "BLACK_PAWN_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_knight_in_white.png",
+                "name": "BLACK_KNIGHT_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_knight_in_black.png",
+                "name": "BLACK_KNIGHT_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_king_in_white.png",
+                "name": "BLACK_KING_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_king_in_black.png",
+                "name": "BLACK_KING_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_bishop_in_white.png",
+                "name": "BLACK_BISHOP_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_bishop_in_black.png",
+                "name": "BLACK_BISHOP_BLACK",
+                "type": "png"
+            }
+        ]
+    },
+    "shortName": "Games",
+    "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
