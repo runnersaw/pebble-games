@@ -1,16 +1,16 @@
 #include <pebble.h>
 #include "windowHandler.h"
 #include "menuHandler.h"
-#include "snake.h"
-#include "pong.h"
+#include "food.h"
+#include "tennis.h"
 #include "chess.h"
   
-void snake_chosen() {
-  snake_init();
+void food_chosen() {
+  food_init();
 }
   
-void pong_chosen() {
-  pong_init();
+void tennis_chosen() {
+  tennis_init();
 }
   
 void chess_chosen() {

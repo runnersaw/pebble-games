@@ -16,20 +16,20 @@ static SimpleMenuItem menu_items[NUM_MENU_ITEMS];
 static void menu_window_load(Window *window) {
   menu_items[0] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "Snake",
-    .callback = snake_chosen,
+    .title = "Chess",
+    .callback = chess_chosen,
   };
   
   menu_items[1] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "Pong",
-    .callback = pong_chosen,
+    .title = "FOOD!",
+    .callback = food_chosen,
   };
   
   menu_items[2] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "Chess",
-    .callback = chess_chosen,
+    .title = "Tennis",
+    .callback = tennis_chosen,
   };
   
   // Header
@@ -66,6 +66,7 @@ void menu_init() {
 
 void menu_deinit() {
     // Destroy Window
+    layer_destroy(simple_menu_layer_get_layer(s_games_menu));
     window_destroy(s_menu_window);
 }
 

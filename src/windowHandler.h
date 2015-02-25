@@ -1,5 +1,5 @@
 #pragma once
 
-void snake_chosen();
-void pong_chosen();
+void food_chosen();
+void tennis_chosen();
 void chess_chosen();
