@@ -9,6 +9,31 @@
     "resources": {
         "media": [
             {
+                "file": "images/tennis-icon.png",
+                "name": "TENNIS_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/chess_icon.png",
+                "name": "CHESS_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/info_icon.png",
+                "name": "INFO_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/food_icon.png",
+                "name": "FOOD_ICON",
+                "type": "png"
+            },
+            {
+                "file": "data/PebbGames.txt",
+                "name": "PEBB_GAMES_ABOUT",
+                "type": "raw"
+            },
+            {
                 "file": "images/game-icon.png",
                 "menuIcon": true,
                 "name": "GAMES_ICON",
@@ -86,6 +111,7 @@
             }
         ]
     },
+    "sdkVersion": "2",
     "shortName": "PebbGames",
     "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
     "versionCode": 1,

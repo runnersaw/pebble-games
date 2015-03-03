@@ -8,6 +8,7 @@
 #define PADDLE_DISTANCE 10
 #define BALL_RADIUS 2
 #define WAIT 40
+#define CPU_VEL 3
 #define PERSON_VEL 3
 #define MAX_Y_VEL 5
   
@@ -219,8 +220,8 @@ static void tennis_window_load(Window *window) {
 static void tennis_window_unload(Window *window) {
   layer_destroy(s_tennis_layer);
   layer_destroy(s_tennis_container_layer);
-  layer_destroy(text_layer_get_layer(s_tennis_player_score_layer));
-  layer_destroy(text_layer_get_layer(s_tennis_cpu_score_layer));
+  text_layer_destroy(s_tennis_player_score_layer);
+  text_layer_destroy(s_tennis_cpu_score_layer);
   window_destroy(s_tennis_window);
 }
 

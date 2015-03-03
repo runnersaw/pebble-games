@@ -278,8 +278,8 @@ static void food_window_unload(Window *window) {
   free(y_pos);
   layer_destroy(s_food_layer);
   layer_destroy(s_food_container_layer);
-  layer_destroy(text_layer_get_layer(s_food_lost_layer));
-  layer_destroy(text_layer_get_layer(s_food_score_layer));
+  text_layer_destroy(s_food_lost_layer);
+  text_layer_destroy(s_food_score_layer);
   window_destroy(s_food_window);
 }
 

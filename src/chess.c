@@ -27,8 +27,8 @@
 #define SEARCH_DEPTH 2
   
 #define BOARD_STATE_KEY 1423
-  
-// TODO: program castle and pawn conversion
+#define CASTLE_RIGHT_KEY 9357
+#define CASTLE_LEFT_KEY 7347
   
 static Window *s_chess_window;
 static Layer *s_chess_layer;
@@ -66,6 +66,9 @@ static short possible_moves[8][8];
 static short possible_pieces_to_move[8][8];
 
 static short turn = WHITE_TEAM; //white is 1, black is -1
+
+static short white_castle_possible_right = 1;
+static short white_castle_possible_left = 1;
 
 static void create_bitmaps() {
   s_black_king_black = gbitmap_create_with_resource(RESOURCE_ID_BLACK_KING_BLACK);
@@ -401,11 +404,28 @@ static void generate_moves_threatening(short state[8][8], short team) {
   }
 }
 
-static short test_move(short start_x, short start_y, short end_x, short end_y, short team) { // 1 is white, 0 is black
+static short test_move(short state[8][8], short start_x, short start_y, short end_x, short end_y, short team) { // 1 is white, 0 is black
   if (is_valid(end_x, end_y)==0) {
     return 0;
   }
-  copy_state(test_board_state, board_state);
+  if (get_piece_at_position(state, start_x, start_y)==WHITE_KING&&start_x==4&&start_y==7) {
+    if (end_x==6) {
+      generate_moves_threatening(state, -team);
+      if (test_possible_moves[7][4]==0&&test_possible_moves[7][5]==0&&test_possible_moves[7][6]==0) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } else if (end_x==2) {
+      generate_moves_threatening(state, -team);
+      if (test_possible_moves[7][4]==0&&test_possible_moves[7][3]==0&&test_possible_moves[7][2]==0) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  }
+  copy_state(test_board_state, state);
   reset_state(test_possible_moves);
   test_board_state[end_y][end_x] = test_board_state[start_y][start_x];
   test_board_state[start_y][start_x] = 0;
@@ -429,6 +449,15 @@ static short test_move(short start_x, short start_y, short end_x, short end_y, s
     }
   }
   return 0;
+}
+
+void generate_castle_possible(short state[8][8]) {
+  if (white_castle_possible_right==1&&get_piece_at_position(state,5,7)==0&&get_piece_at_position(state,6,7)==0) {
+    test_possible_moves[7][6]=1;
+  }
+  if (white_castle_possible_left==1&&get_piece_at_position(state,1,7)==0&&get_piece_at_position(state,2,7)==0&&get_piece_at_position(state,3,7)==0) {
+    test_possible_moves[7][2]=1;
+  }
 }
 
 static void generate_moves(short state[8][8], short team) {
@@ -466,6 +495,7 @@ static void generate_moves(short state[8][8], short team) {
           generate_bishop_threaten(state, x, y, WHITE_TEAM);
         } else if (get_piece_at_position(state, x,y)==WHITE_KING) {
           generate_king_threaten(state, x, y, WHITE_TEAM);
+          generate_castle_possible(state);
         }
       }
       copy_state(temp_possible_moves,test_possible_moves);
@@ -473,7 +503,7 @@ static void generate_moves(short state[8][8], short team) {
       for (k=0;k<8;k++) {
         for (l=0;l<8;l++) {
           if (temp_possible_moves[l][k]==1) {
-            if (test_move(x, y, k, l, team)==1) {
+            if (test_move(state, x, y, k, l, team)==1) {
               possible_moves[l][k]=1;
               possible_pieces_to_move[y][x]=1;
             }
@@ -520,13 +550,14 @@ static void generate_move(short state[8][8], short x, short y) {
     generate_bishop_threaten(state, x, y, WHITE_TEAM);
   } else if (piece==WHITE_KING) {
     generate_king_threaten(state, x, y, WHITE_TEAM);
+    generate_castle_possible(state);
   }
   copy_state(temp_possible_moves,test_possible_moves);
   short k,l;
   for (k=0;k<8;k++) {
     for (l=0;l<8;l++) {
       if (temp_possible_moves[l][k]==1) {
-        if (test_move(x, y, k, l, team)==1) {
+        if (test_move(state, x, y, k, l, team)==1) {
           possible_moves[l][k]=1;
           possible_pieces_to_move[y][x]=1;
         }
@@ -536,8 +567,25 @@ static void generate_move(short state[8][8], short x, short y) {
 }
 
 static void move(short state[8][8], short start_x, short start_y, short end_x, short end_y) {
+  if(get_piece_at_position(board_state, start_x, start_y)==WHITE_KING) {
+    if (start_x==4&&start_y==7&&end_x==6&&end_y==7) {
+      move(state, 7,7,5,7);
+    }
+    if (start_x==4&&start_y==7&&end_x==2&&end_y==7) {
+      move(state, 0,7,3,7);
+    }
+  }
+  
   state[end_y][end_x] = state[start_y][start_x];
   state[start_y][start_x] = 0;
+    
+  if (get_piece_at_position(state, end_x, end_y)==WHITE_PAWN && end_y==0) {
+    state[end_y][end_x] = WHITE_QUEEN;
+  }
+    
+  if (get_piece_at_position(state, end_x, end_y)==BLACK_PAWN && end_y==7) {
+    state[end_y][end_x] = BLACK_QUEEN;
+  }
 }
 
 //http://en.wikipedia.org/wiki/Chess_piece_relative_value#Hans_Berliner.27s_system
@@ -558,7 +606,6 @@ queen = 8.8*/
 
 short find_pawn_value(short state[8][8], short x,short y,short team) {
   short score=0;
-  short m,n;
   if (get_piece_at_position(state, x, y-team)!=0) {
     score +=6*team;
   } else if (get_piece_at_position(state, x, y-2*team)!=0) {
@@ -571,7 +618,6 @@ short find_pawn_value(short state[8][8], short x,short y,short team) {
 
 short find_knight_value(short state[8][8], short x,short y,short team) {
   short score=0;
-  short m,n;
   if (x==0||x==7||y==0||y==7) {
     score += 25*team;
   } else {
@@ -582,28 +628,24 @@ short find_knight_value(short state[8][8], short x,short y,short team) {
 
 short find_bishop_value(short state[8][8], short x,short y,short team) {
   short score=0;
-  short m,n;
   score+=33*team;
   return score;
 }
 
 short find_rook_value(short state[8][8], short x,short y,short team) {
   short score=0;
-  short m,n;
   score+=51*team;
   return score;
 }
 
 short find_queen_value(short state[8][8], short x,short y,short team) {
   short score=0;
-  short m,n;
   score+=88*team;
   return score;
 }
 
 short find_king_value(short state[8][8], short x,short y,short team) {
   short score=0;
-  short m,n;
   score+=10000*team;
   return score;
 }
@@ -774,7 +816,21 @@ static void change_turn() {
   turn=-turn;
   move_count++;
   if (turn==BLACK_TEAM) {
-    find_move(board_state, turn, SEARCH_DEPTH);
+    short search_depth=SEARCH_DEPTH, pieces=0, j,k;
+    for (j=0;j<8;j++) {
+      for (k=0;k<8;k++) {
+        if (get_piece_at_position(board_state,j,k)<0) { //number of pieces on black team
+          pieces++;
+        }
+      }
+    }
+    if (pieces<5) {
+      search_depth++;
+    }
+    if (pieces<3) {
+      search_depth++;
+    }
+    find_move(board_state, turn, search_depth);
   }
 }
 
@@ -853,7 +909,25 @@ static void draw_chess(Layer *layer, GContext *ctx) {
 
 static void draw_indicator(Layer *layer, GContext *ctx) {
   if (display_box==2) {
-    
+    if ((selected_x+selected_y)%2==1) { // black square
+      graphics_context_set_stroke_color(ctx, GColorWhite);
+    } else {
+      graphics_context_set_stroke_color(ctx, GColorBlack);
+    }
+    graphics_draw_rect(ctx, GRect(selected_x*WIDTH/8+BOX_BORDER,selected_y*WIDTH/8+BOX_BORDER+12,WIDTH/8-2*BOX_BORDER,WIDTH/8-2*BOX_BORDER));
+    short m,n;
+    for (m=0;m<8;m++) {
+      for (n=0;n<8;n++) {
+        if (possible_moves[n][m]==1) {
+          if ((m+n)%2==1) {
+            graphics_context_set_fill_color(ctx,GColorWhite);
+          } else {
+            graphics_context_set_fill_color(ctx,GColorBlack);
+          }
+          graphics_fill_circle(ctx, GPoint(m*WIDTH/8+WIDTH/16, n*WIDTH/8+5*WIDTH/32+BOX_BORDER/2), 3);
+        }
+      }
+    }
   } else if (display_box==1) {
     if ((selected_x+selected_y)%2==1) { // black square
       graphics_context_set_stroke_color(ctx, GColorWhite);
@@ -1003,8 +1077,18 @@ static void select_handler() {
       selected_y = 0;
       find_next_move();
       on_x=1;
+      display_box=2;
     }
-  } else { // has selected piece, just selected place to move
+  } else { // has selected piece, just selected place to move    
+  
+    if ((selected_piece_x==0&& selected_piece_y==7) || (selected_piece_x==4&& selected_piece_y==7)) {
+      white_castle_possible_left = 0;
+    }
+  
+    if ((selected_piece_x==7&& selected_piece_y==7) || (selected_piece_x==4&& selected_piece_y==7)) {
+      white_castle_possible_right = 0;
+    }
+    
     move(board_state, selected_piece_x, selected_piece_y, selected_x, selected_y);
     change_turn();
     generate_moves(board_state, turn);
@@ -1033,6 +1117,7 @@ static void back_handler() {
     selected_y = selected_piece_y;
     generate_moves(board_state, turn);
     on_x=0;
+    display_box=1;
   }
   layer_mark_dirty(s_chess_indicator_layer);
 }
@@ -1047,6 +1132,9 @@ void chess_reset() {
   move_count = 0;
 
   display_box = 0;
+  
+  white_castle_possible_right = 1;
+  white_castle_possible_left = 1;
   
   turn = WHITE_TEAM; //white is 1, black is -1
   init_board_state();
@@ -1089,16 +1177,26 @@ static void chess_window_load(Window *window) {
   if (persist_exists(BOARD_STATE_KEY)) {
     persist_read_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
   }
+  if (persist_exists(CASTLE_LEFT_KEY)) {
+    white_castle_possible_left = persist_read_int(CASTLE_LEFT_KEY);
+  }
+  if (persist_exists(CASTLE_RIGHT_KEY)) {
+    white_castle_possible_right = persist_read_int(CASTLE_RIGHT_KEY);
+  }
   
   reset_state(possible_moves);
   reset_state(test_possible_moves);
   reset_state(possible_pieces_to_move);
   generate_moves(board_state, turn);
+  find_next_x_piece();
+  find_next_y_piece();
   window_set_click_config_provider(window, (ClickConfigProvider) chess_config_provider);
 }
 
 static void chess_window_unload(Window *window) {
   persist_write_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
+  persist_write_int(CASTLE_RIGHT_KEY, white_castle_possible_right);
+  persist_write_int(CASTLE_LEFT_KEY, white_castle_possible_left);
   
   destroy_bitmaps();
   layer_destroy(s_chess_layer);
