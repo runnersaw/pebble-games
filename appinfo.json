@@ -9,6 +9,12 @@
     "resources": {
         "media": [
             {
+                "file": "images/game-icon.png",
+                "menuIcon": true,
+                "name": "GAMES_ICON",
+                "type": "png"
+            },
+            {
                 "file": "images/tennis-icon.png",
                 "name": "TENNIS_ICON",
                 "type": "png"
@@ -32,12 +38,6 @@
                 "file": "data/PebbGames.txt",
                 "name": "PEBB_GAMES_ABOUT",
                 "type": "raw"
-            },
-            {
-                "file": "images/game-icon.png",
-                "menuIcon": true,
-                "name": "GAMES_ICON",
-                "type": "png"
             },
             {
                 "file": "data/start_chess.raw",
