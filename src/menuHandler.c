@@ -1,8 +1,11 @@
 #include <pebble.h>
 #include "menuHandler.h"
-#include "windowHandler.h"
+#include "food.h"
+#include "tennis.h"
+#include "chess.h"
+#include "blackjack.h"
   
-#define NUM_MENU_ITEMS 4
+#define NUM_MENU_ITEMS 5
 #define CHAR_NUM 300
 
 static Window *s_menu_window;
@@ -15,6 +18,7 @@ static GBitmap *info_icon;
 static GBitmap *chess_icon;
 static GBitmap *tennis_icon;
 static GBitmap *food_icon;
+static GBitmap *blackjack_icon;
 
 // A simple menu layer can have multiple sections
 static SimpleMenuSection menu_sections[1];
@@ -62,6 +66,7 @@ void load_bitmaps() {
   food_icon = gbitmap_create_with_resource(RESOURCE_ID_FOOD_ICON);
   chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
   info_icon = gbitmap_create_with_resource(RESOURCE_ID_INFO_ICON);
+  blackjack_icon = gbitmap_create_with_resource(RESOURCE_ID_BLACKJACK_ICON);
 }
 
 static void destroy_bitmaps() {
@@ -69,6 +74,7 @@ static void destroy_bitmaps() {
   gbitmap_destroy(chess_icon);
   gbitmap_destroy(food_icon);
   gbitmap_destroy(tennis_icon);
+  gbitmap_destroy(blackjack_icon);
 }
 
 static void menu_window_load(Window *window) {
@@ -77,25 +83,32 @@ static void menu_window_load(Window *window) {
   menu_items[0] = (SimpleMenuItem){
     // You should give each menu item a title and callback
     .title = "Chess",
-    .callback = chess_chosen,
+    .callback = chess_init,
     .icon=chess_icon
   };
   
   menu_items[1] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "FOOD!",
-    .callback = food_chosen,
-    .icon = food_icon
+    .title = "Blackjack",
+    .callback = blackjack_init,
+    .icon = blackjack_icon
   };
   
   menu_items[2] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "Tennis",
-    .callback = tennis_chosen,
-    .icon = tennis_icon
+    .title = "FOOD!",
+    .callback = food_init,
+    .icon = food_icon
   };
   
   menu_items[3] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "Tennis",
+    .callback = tennis_init,
+    .icon = tennis_icon
+  };
+  
+  menu_items[4] = (SimpleMenuItem){
     // You should give each menu item a title and callback
     .title = "About",
     .callback = about_chosen,
@@ -141,8 +154,8 @@ void menu_deinit() {
     window_destroy(s_menu_window);
 }
 
-/*int main(void) {
-  address_init();
+int main() {
+  menu_init();
   app_event_loop();
-  address_deinit();
-}*/
+  menu_deinit();
+}

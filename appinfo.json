@@ -9,6 +9,41 @@
     "resources": {
         "media": [
             {
+                "file": "images/blackjack-icon.png",
+                "name": "BLACKJACK_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/done.png",
+                "name": "DONE_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/hit.png",
+                "name": "HIT_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/spades.png",
+                "name": "SPADES_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/diamonds.png",
+                "name": "DIAMONDS_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/clubs.png",
+                "name": "CLUBS_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/hearts.png",
+                "name": "HEARTS_ICON",
+                "type": "png"
+            },
+            {
                 "file": "images/game-icon.png",
                 "menuIcon": true,
                 "name": "GAMES_ICON",
@@ -111,8 +146,12 @@
             }
         ]
     },
-    "sdkVersion": "2",
+    "sdkVersion": "3",
     "shortName": "PebbGames",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
     "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
     "versionCode": 1,
     "versionLabel": "1.0",
