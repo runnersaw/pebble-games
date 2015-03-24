@@ -9,8 +9,28 @@
     "resources": {
         "media": [
             {
-                "file": "images/blackjack-icon.png",
-                "name": "BLACKJACK_ICON",
+                "file": "images/mastermind_icon.png",
+                "name": "MASTERMIND_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/2048_icon.png",
+                "name": "TWO048_ICON",
+                "type": "png"
+            },
+            {
+                "file": "data/PebbGames.txt",
+                "name": "PEBB_GAMES_ABOUT",
+                "type": "raw"
+            },
+            {
+                "file": "data/start_chess.raw",
+                "name": "START_CHESS",
+                "type": "raw"
+            },
+            {
+                "file": "images/hit.png",
+                "name": "HIT_ICON",
                 "type": "png"
             },
             {
@@ -19,8 +39,83 @@
                 "type": "png"
             },
             {
-                "file": "images/hit.png",
-                "name": "HIT_ICON",
+                "file": "images/diamonds.png",
+                "name": "DIAMONDS_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/hearts.png",
+                "name": "HEARTS_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/black_king_in_white.png",
+                "name": "BLACK_KING_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_rook_in_white.png",
+                "name": "BLACK_ROOK_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_queen_in_white.png",
+                "name": "BLACK_QUEEN_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_pawn_in_white.png",
+                "name": "BLACK_PAWN_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_knight_in_white.png",
+                "name": "BLACK_KNIGHT_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/black_bishop_in_white.png",
+                "name": "BLACK_BISHOP_WHITE",
+                "type": "png"
+            },
+            {
+                "file": "images/down_arrow.png",
+                "name": "DOWN_ARROW",
+                "type": "png"
+            },
+            {
+                "file": "images/black_rook_in_black.png",
+                "name": "BLACK_ROOK_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_queen_in_black.png",
+                "name": "BLACK_QUEEN_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_pawn_in_black.png",
+                "name": "BLACK_PAWN_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_knight_in_black.png",
+                "name": "BLACK_KNIGHT_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_king_in_black.png",
+                "name": "BLACK_KING_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/black_bishop_in_black.png",
+                "name": "BLACK_BISHOP_BLACK",
+                "type": "png"
+            },
+            {
+                "file": "images/blackjack-icon.png",
+                "name": "BLACKJACK_ICON",
                 "type": "png"
             },
             {
@@ -29,18 +124,8 @@
                 "type": "png"
             },
             {
-                "file": "images/diamonds.png",
-                "name": "DIAMONDS_ICON",
-                "type": "png"
-            },
-            {
                 "file": "images/clubs.png",
                 "name": "CLUBS_ICON",
-                "type": "png"
-            },
-            {
-                "file": "images/hearts.png",
-                "name": "HEARTS_ICON",
                 "type": "png"
             },
             {
@@ -68,81 +153,6 @@
                 "file": "images/food_icon.png",
                 "name": "FOOD_ICON",
                 "type": "png"
-            },
-            {
-                "file": "data/PebbGames.txt",
-                "name": "PEBB_GAMES_ABOUT",
-                "type": "raw"
-            },
-            {
-                "file": "data/start_chess.raw",
-                "name": "START_CHESS",
-                "type": "raw"
-            },
-            {
-                "file": "images/down_arrow.png",
-                "name": "DOWN_ARROW",
-                "type": "png"
-            },
-            {
-                "file": "images/black_rook_in_white.png",
-                "name": "BLACK_ROOK_WHITE",
-                "type": "png"
-            },
-            {
-                "file": "images/black_rook_in_black.png",
-                "name": "BLACK_ROOK_BLACK",
-                "type": "png"
-            },
-            {
-                "file": "images/black_queen_in_white.png",
-                "name": "BLACK_QUEEN_WHITE",
-                "type": "png"
-            },
-            {
-                "file": "images/black_queen_in_black.png",
-                "name": "BLACK_QUEEN_BLACK",
-                "type": "png"
-            },
-            {
-                "file": "images/black_pawn_in_white.png",
-                "name": "BLACK_PAWN_WHITE",
-                "type": "png"
-            },
-            {
-                "file": "images/black_pawn_in_black.png",
-                "name": "BLACK_PAWN_BLACK",
-                "type": "png"
-            },
-            {
-                "file": "images/black_knight_in_white.png",
-                "name": "BLACK_KNIGHT_WHITE",
-                "type": "png"
-            },
-            {
-                "file": "images/black_knight_in_black.png",
-                "name": "BLACK_KNIGHT_BLACK",
-                "type": "png"
-            },
-            {
-                "file": "images/black_king_in_white.png",
-                "name": "BLACK_KING_WHITE",
-                "type": "png"
-            },
-            {
-                "file": "images/black_king_in_black.png",
-                "name": "BLACK_KING_BLACK",
-                "type": "png"
-            },
-            {
-                "file": "images/black_bishop_in_white.png",
-                "name": "BLACK_BISHOP_WHITE",
-                "type": "png"
-            },
-            {
-                "file": "images/black_bishop_in_black.png",
-                "name": "BLACK_BISHOP_BLACK",
-                "type": "png"
             }
         ]
     },
@@ -154,7 +164,7 @@
     ],
     "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": false
     }

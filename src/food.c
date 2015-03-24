@@ -11,7 +11,7 @@
 #define TIMEOUT 200
   
 #define GRID_SIZE 20
-#define MAX_PLAYER_LENGTH 64
+#define MAX_PLAYER_LENGTH 99
   
 #define BOX_WIDTH FRAME_WIDTH/GRID_SIZE
   
@@ -245,18 +245,34 @@ void food_config_provider(Window *window) {
 static void draw_food_container(Layer *layer, GContext *ctx) {
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_draw_rect(ctx, layer_get_bounds(layer));
+  #ifdef PBL_PLATFORM_BASALT
+    graphics_context_set_fill_color(ctx, GColorBrightGreen);
+    graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+  #endif
 }
 
 static void draw_food(Layer *layer, GContext *ctx) {
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  #ifdef PBL_PLATFORM_BASALT
+    graphics_context_set_fill_color(ctx, GColorCobaltBlue);
+  #else
+    graphics_context_set_fill_color(ctx, GColorBlack);
+  #endif
   int k;
   for (k=0;x_pos[k]>-1;k++) {
     graphics_fill_rect(ctx, GRect(x_pos[k]*BOX_WIDTH, y_pos[k]*BOX_WIDTH, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
   }
+  #ifdef PBL_PLATFORM_BASALT
+    graphics_context_set_fill_color(ctx, GColorRed);
+  #endif
   graphics_fill_rect(ctx, GRect(food_x*BOX_WIDTH, food_y*BOX_WIDTH, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
 }
 
 static void food_window_load(Window *window) {  
+  x_pos=malloc(MAX_PLAYER_LENGTH*sizeof(short));
+  y_pos=malloc(MAX_PLAYER_LENGTH*sizeof(short));
+  init_xy();
+  generate_food();
+  
   s_food_container_layer = layer_create(GRect(12, 12, FRAME_WIDTH, FRAME_WIDTH));
   s_food_layer = layer_create(GRect(0, 0, FRAME_WIDTH, FRAME_WIDTH));
   s_food_lost_layer = text_layer_create(GRect(0, 55, 144, 50));
@@ -269,7 +285,7 @@ static void food_window_load(Window *window) {
   
   window_set_click_config_provider(window, (ClickConfigProvider) food_config_provider);
   
-  draw_score();  
+  draw_score();
   timer = app_timer_register(TIMEOUT, move_with_timer, NULL);
 }
 
@@ -283,15 +299,14 @@ static void food_window_unload(Window *window) {
   window_destroy(s_food_window);
 }
 
-void food_init() {
-  x_pos=malloc(MAX_PLAYER_LENGTH*sizeof(short));
-  y_pos=malloc(MAX_PLAYER_LENGTH*sizeof(short));
-  init_xy();
-  generate_food();
-  
+void food_init() {  
   // Create main Window element and assign to pointer
   s_food_window = window_create();
 
+  #ifdef PBL_PLATFORM_BASALT
+    window_set_background_color(s_food_window, GColorIslamicGreen);
+  #endif
+  
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_food_window, (WindowHandlers) {
     .load = food_window_load,

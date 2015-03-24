@@ -38,12 +38,24 @@ static short *person;
 static short *dealer;
 static short *deck;
 
+void init_to_nil() {
+  person = malloc(11*sizeof(short));
+  dealer = malloc(11*sizeof(short));
+  deck = malloc(48*sizeof(short));
+  short m;
+  for (m=0;m<11;m++) {
+    *(person+m) = -1;
+    *(dealer+m) = -1;
+  }
+  for (m=0;m<48;m++) {
+    *(deck+m) = -1;
+  }
+}
+
 void shuffle(short *array) {
-  time_t t;
-  srand((unsigned) time(&t));
   size_t i;
   for (i = 0; i < 52; i++) {
-    size_t j = i + rand() / (RAND_MAX / (52 - i) + 1);
+    size_t j = (rand() % (52-i)) + i;
     int t = array[j];
     array[j] = array[i];
     array[i] = t;
@@ -96,16 +108,13 @@ static void free_cards() {
 }
 
 static void reset_cards() {
+  init_to_nil();
   short cards[52];
   short m;
   for (m=0;m<52;m++) {
     cards[m] = m; // 0 is 2 hearts, then 2dia, 2club, 2spade, 3heart, etc. m%4 == suit, m/4 = number
   }
   shuffle(cards);
-  
-  person = malloc(2*sizeof(short));
-  dealer = malloc(2*sizeof(short));
-  deck = malloc(48*sizeof(short));
   
   for (m=0;m<2;m++) {
     *(person +m) = cards[m];
@@ -133,14 +142,8 @@ static void add_card(short *cards, short person) {
     length = dealer_size;
     dealer_size++;
   }
-  short *temp_self = malloc((length+1)*sizeof(short));
-  short m;
-  for (m=0;m<length;m++) {
-    *(temp_self+m) = *(cards+m);
-  }
-  *(temp_self+length) = *(deck+deck_size);
-  cards = temp_self;
-  free(temp_self);
+  deck_size--;
+  *(cards+length) = *(deck+deck_size);
 }
 
 static void reset_game() {
@@ -286,13 +289,21 @@ static void draw_card(short card, short x, short y, short shown, GContext *ctx) 
     card_text[0] = (char)(((int)'0')+card_number+1);
     card_text[1] = '\0';
   }
-  graphics_context_set_text_color(ctx, GColorBlack);
+  short suit = card%4;
+  #ifdef PBL_PLATFORM_BASALT
+    if (suit==0 || suit==1) {
+      graphics_context_set_text_color(ctx, GColorRed);
+    } else {
+      graphics_context_set_text_color(ctx, GColorBlack);
+    }
+  #else
+    graphics_context_set_text_color(ctx, GColorBlack);
+  #endif
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_rect(ctx, GRect(x,y,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_draw_round_rect(ctx, GRect(x,y,CARD_WIDTH,CARD_HEIGHT), 4);
   graphics_draw_text(ctx, card_text, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(x,y,CARD_WIDTH,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  short suit = card%4;
   GBitmap *bmp_to_draw;
   if (suit==0) {
     bmp_to_draw = hearts_icon;
@@ -356,6 +367,7 @@ static void destroy_bitmaps() {
 static void blackjack_window_load(Window *window) {
   load_bitmaps();
   
+  srand((unsigned) time(NULL));
   reset_cards();
   
   if (persist_exists(BLACKJACK_PERSON_SCORE_KEY)) {
