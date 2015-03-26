@@ -3,6 +3,8 @@
   
 #define WIDTH 136
 #define BOX_BORDER 2
+#define TOP_BORDER 12
+#define LEFT_BORDER 4
   
 #define BLACK_TEAM -1
 #define WHITE_TEAM 1
@@ -33,8 +35,6 @@
   
 static Window *s_chess_window;
 static Layer *s_chess_layer;
-static Layer *s_chess_indicator_layer;
-static Layer *s_chess_container_layer;
 
 #ifdef PBL_PLATFORM_BASALT
   static GBitmap *s_black_bishop;
@@ -885,107 +885,139 @@ static void change_turn() {
 
 static void draw_chess(Layer *layer, GContext *ctx) {
   short m,n;
+  #ifdef PBL_PLATFORM_BASALT
+    graphics_context_set_stroke_color(ctx, GColorRajah);
+    graphics_context_set_fill_color(ctx, GColorRajah);
+    for (m=0;m<4;m++) {
+      for (n=0;n<4;n++) {
+        graphics_fill_rect(ctx, GRect(m*WIDTH/4+LEFT_BORDER,n*WIDTH/4+TOP_BORDER,WIDTH/8,WIDTH/8), 0, GCornerNone);
+      }
+    }
+    for (m=0;m<4;m++) {
+      for (n=0;n<4;n++) {
+        graphics_fill_rect(ctx, GRect((2*m+1)*WIDTH/8+LEFT_BORDER,(2*n+1)*WIDTH/8+TOP_BORDER,WIDTH/8,WIDTH/8), 0, GCornerNone);
+      }
+    }
+    graphics_context_set_stroke_color(ctx, GColorWindsorTan);
+    graphics_context_set_fill_color(ctx, GColorWindsorTan);
+  #else
+    graphics_context_set_stroke_color(ctx, GColorBlack);
+    graphics_context_set_fill_color(ctx, GColorBlack);
+  #endif
+  graphics_draw_rect(ctx, GRect(LEFT_BORDER, TOP_BORDER, WIDTH, WIDTH));
+  short i, j;
+  for (i=0;i<4;i++) {
+    for (j=0;j<4;j++) {
+      graphics_fill_rect(ctx, GRect(i*WIDTH/4+LEFT_BORDER,(2*j+1)*WIDTH/8+TOP_BORDER,WIDTH/8,WIDTH/8), 0, GCornerNone);
+    }
+  }
+  for (i=0;i<4;i++) {
+    for (j=0;j<4;j++) {
+      graphics_fill_rect(ctx, GRect((2*i+1)*WIDTH/8+LEFT_BORDER,j*WIDTH/4+TOP_BORDER,WIDTH/8,WIDTH/8), 0, GCornerNone);
+    }
+  }
+  
+  // draw pieces
   for (m=0;m<8;m++) {
     for (n=0;n<8;n++) {
       #ifdef PBL_PLATFORM_BASALT
         graphics_context_set_compositing_mode(ctx, GCompOpSet);
         if (get_piece_at_position(board_state,n,m) == WHITE_PAWN) {
-          graphics_draw_bitmap_in_rect(ctx, s_white_pawn, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_white_pawn, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == WHITE_ROOK) {
-          graphics_draw_bitmap_in_rect(ctx, s_white_rook, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_white_rook, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == WHITE_QUEEN) {
-          graphics_draw_bitmap_in_rect(ctx, s_white_queen, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_white_queen, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == WHITE_BISHOP) {
-          graphics_draw_bitmap_in_rect(ctx, s_white_bishop, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_white_bishop, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == WHITE_KNIGHT) {
-          graphics_draw_bitmap_in_rect(ctx, s_white_knight, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_white_knight, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == WHITE_KING) {
-          graphics_draw_bitmap_in_rect(ctx, s_white_king, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_white_king, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == BLACK_PAWN) {
-          graphics_draw_bitmap_in_rect(ctx, s_black_pawn, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_black_pawn, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == BLACK_BISHOP) {
-          graphics_draw_bitmap_in_rect(ctx, s_black_bishop, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_black_bishop, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == BLACK_QUEEN) {
-          graphics_draw_bitmap_in_rect(ctx, s_black_queen, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_black_queen, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == BLACK_KING) {
-          graphics_draw_bitmap_in_rect(ctx, s_black_king, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_black_king, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == BLACK_KNIGHT) {
-          graphics_draw_bitmap_in_rect(ctx, s_black_knight, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_black_knight, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         } else if (get_piece_at_position(board_state,n,m) == BLACK_ROOK) {
-          graphics_draw_bitmap_in_rect(ctx, s_black_rook, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+          graphics_draw_bitmap_in_rect(ctx, s_black_rook, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
         }
       #else
         if ((m+n)%2==1) { // black square
           if (get_piece_at_position(board_state,n,m)>0) { // is white
             graphics_context_set_compositing_mode(ctx, GCompOpAssignInverted);
             if (get_piece_at_position(board_state,n,m) == WHITE_PAWN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_ROOK) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_rook_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_rook_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_QUEEN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_queen_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_queen_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_BISHOP) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_KNIGHT) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_knight_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_knight_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_KING) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_king_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_king_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             }
           } else { //black
             graphics_context_set_compositing_mode(ctx, GCompOpAssign);
             if (get_piece_at_position(board_state,n,m) == BLACK_PAWN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_BISHOP) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_QUEEN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_queen_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_queen_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_KING) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_king_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_king_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_KNIGHT) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_knight_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_knight_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_ROOK) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_rook_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_rook_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             }
           }
         } else { // white square
           if (get_piece_at_position(board_state,n,m)>0) {
             graphics_context_set_compositing_mode(ctx, GCompOpAssignInverted);
             if (get_piece_at_position(board_state,n,m) == WHITE_PAWN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_ROOK) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_rook_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_rook_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_QUEEN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_queen_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_queen_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_BISHOP) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_KNIGHT) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_knight_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_knight_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == WHITE_KING) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_king_black, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_king_black, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             }
           } else { 
             graphics_context_set_compositing_mode(ctx, GCompOpAssign);
             if (get_piece_at_position(board_state,n,m) == BLACK_PAWN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_pawn_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_BISHOP) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_bishop_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_QUEEN) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_queen_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_queen_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_KING) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_king_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_king_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_KNIGHT) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_knight_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_knight_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             } else if (get_piece_at_position(board_state,n,m) == BLACK_ROOK) {
-              graphics_draw_bitmap_in_rect(ctx, s_black_rook_white, GRect(n*WIDTH/8+1,m*WIDTH/8+1,15,15));
+              graphics_draw_bitmap_in_rect(ctx, s_black_rook_white, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
             }
           }
         }
       #endif
     }
   }
-}
-
-static void draw_indicator(Layer *layer, GContext *ctx) {
+  
+  // draw indicator
   if (display_box==2) {
     if ((selected_x+selected_y)%2==1) { // black square
       graphics_context_set_stroke_color(ctx, GColorWhite);
@@ -995,8 +1027,7 @@ static void draw_indicator(Layer *layer, GContext *ctx) {
     #ifdef PBL_PLATFORM_BASALT
       graphics_context_set_stroke_color(ctx, GColorBlack);
     #endif
-    graphics_draw_rect(ctx, GRect(selected_x*WIDTH/8+BOX_BORDER,selected_y*WIDTH/8+BOX_BORDER+12,WIDTH/8-2*BOX_BORDER,WIDTH/8-2*BOX_BORDER));
-    short m,n;
+    graphics_draw_rect(ctx, GRect(selected_x*WIDTH/8+BOX_BORDER+LEFT_BORDER,selected_y*WIDTH/8+BOX_BORDER+TOP_BORDER,WIDTH/8-2*BOX_BORDER,WIDTH/8-2*BOX_BORDER));
     for (m=0;m<8;m++) {
       for (n=0;n<8;n++) {
         if (get_piece_at_position(possible_moves,m,n)==1) {
@@ -1009,7 +1040,7 @@ static void draw_indicator(Layer *layer, GContext *ctx) {
               graphics_context_set_fill_color(ctx,GColorBlack);
             }
           #endif
-          graphics_fill_circle(ctx, GPoint(m*WIDTH/8+WIDTH/16,n*WIDTH/8+12+WIDTH/16), 3);
+          graphics_fill_circle(ctx, GPoint(m*WIDTH/8+WIDTH/16+LEFT_BORDER,n*WIDTH/8+WIDTH/16+TOP_BORDER), 3);
         }
       }
     }
@@ -1023,48 +1054,18 @@ static void draw_indicator(Layer *layer, GContext *ctx) {
         graphics_context_set_stroke_color(ctx, GColorBlack);
       }
     #endif
-    graphics_draw_rect(ctx, GRect(selected_x*WIDTH/8+BOX_BORDER,selected_y*WIDTH/8+BOX_BORDER+12,WIDTH/8-2*BOX_BORDER,WIDTH/8-2*BOX_BORDER));
+    graphics_draw_rect(ctx, GRect(selected_x*WIDTH/8+BOX_BORDER+LEFT_BORDER,selected_y*WIDTH/8+BOX_BORDER+TOP_BORDER,WIDTH/8-2*BOX_BORDER,WIDTH/8-2*BOX_BORDER));
   } else {
     #ifdef PBL_PLATFORM_BASALT
       graphics_context_set_compositing_mode(ctx, GCompOpSet);
+    #else
+      graphics_context_set_compositing_mode(ctx, GCompOpAssign);
     #endif
-    graphics_draw_bitmap_in_rect(ctx, s_down_arrow, GRect(selected_x*WIDTH/8+2,0,12,12));
+    graphics_draw_bitmap_in_rect(ctx, s_down_arrow, GRect(selected_x*WIDTH/8+2+LEFT_BORDER,0,12,12));
   }
 }
 
 static void draw_chess_container(Layer *layer, GContext *ctx) {
-  #ifdef PBL_PLATFORM_BASALT
-    graphics_context_set_stroke_color(ctx, GColorRajah);
-    graphics_context_set_fill_color(ctx, GColorRajah);
-    short m,n;
-    for (m=0;m<4;m++) {
-      for (n=0;n<4;n++) {
-        graphics_fill_rect(ctx, GRect(m*WIDTH/4,n*WIDTH/4,WIDTH/8,WIDTH/8), 0, GCornerNone);
-      }
-    }
-    for (m=0;m<4;m++) {
-      for (n=0;n<4;n++) {
-        graphics_fill_rect(ctx, GRect((2*m+1)*WIDTH/8,(2*n+1)*WIDTH/8,WIDTH/8,WIDTH/8), 0, GCornerNone);
-      }
-    }
-    graphics_context_set_stroke_color(ctx, GColorWindsorTan);
-    graphics_context_set_fill_color(ctx, GColorWindsorTan);
-  #else
-    graphics_context_set_stroke_color(ctx, GColorBlack);
-    graphics_context_set_fill_color(ctx, GColorBlack);
-  #endif
-  graphics_draw_rect(ctx, GRect(0, 0, WIDTH, WIDTH));
-  short i, j;
-  for (i=0;i<4;i++) {
-    for (j=0;j<4;j++) {
-      graphics_fill_rect(ctx, GRect(i*WIDTH/4,(2*j+1)*WIDTH/8,WIDTH/8,WIDTH/8), 0, GCornerNone);
-    }
-  }
-  for (i=0;i<4;i++) {
-    for (j=0;j<4;j++) {
-      graphics_fill_rect(ctx, GRect((2*i+1)*WIDTH/8,j*WIDTH/4,WIDTH/8,WIDTH/8), 0, GCornerNone);
-    }
-  }
 }
 
 static short find_previous_x_piece() {
@@ -1155,7 +1156,7 @@ static void up_handler() {
   } else {
     find_previous_move();
   }
-  layer_mark_dirty(s_chess_indicator_layer);
+   layer_mark_dirty(s_chess_layer);
 }
 
 static void down_handler() {
@@ -1168,7 +1169,7 @@ static void down_handler() {
   } else {
     find_next_move();
   }
-  layer_mark_dirty(s_chess_indicator_layer);
+   layer_mark_dirty(s_chess_layer);
 }
 
 static void select_handler() {
@@ -1177,7 +1178,7 @@ static void select_handler() {
       on_x=0;
       find_next_y_piece();
       display_box = 1;
-      layer_mark_dirty(s_chess_indicator_layer);
+       layer_mark_dirty(s_chess_layer);
     } else { // selected y, lock in piece to move
       selected = 1;
       selected_piece_x = selected_x;
@@ -1208,7 +1209,7 @@ static void select_handler() {
     selected = 0;
     display_box=0;
   }
-  layer_mark_dirty(s_chess_indicator_layer);
+   layer_mark_dirty(s_chess_layer);
 }
 
 static void back_handler() {
@@ -1229,7 +1230,7 @@ static void back_handler() {
     on_x=0;
     display_box=1;
   }
-  layer_mark_dirty(s_chess_indicator_layer);
+   layer_mark_dirty(s_chess_layer);
 }
 
 void chess_reset() {
@@ -1255,8 +1256,6 @@ void chess_reset() {
   generate_moves(board_state, turn);
   
   layer_mark_dirty(s_chess_layer);
-  layer_mark_dirty(s_chess_indicator_layer);
-  layer_mark_dirty(s_chess_container_layer);
 }
 
 void chess_config_provider(Window *window) {
@@ -1271,16 +1270,10 @@ void chess_config_provider(Window *window) {
 static void chess_window_load(Window *window) {
   create_bitmaps();
   
-  s_chess_indicator_layer = layer_create(GRect(72-WIDTH/2, 0, WIDTH+1, WIDTH+13));
-  s_chess_container_layer = layer_create(GRect(72-WIDTH/2, 12, WIDTH+1, WIDTH+1));
-  s_chess_layer = layer_create(GRect(0, 0, WIDTH+1, WIDTH+1));
+  s_chess_layer = layer_create(GRect(0, 0, 144, 152));
   
   layer_set_update_proc(s_chess_layer, draw_chess);
-  layer_set_update_proc(s_chess_indicator_layer, draw_indicator);
-  layer_set_update_proc(s_chess_container_layer, draw_chess_container);
-  layer_add_child(window_get_root_layer(s_chess_window), s_chess_container_layer);
-  layer_add_child(window_get_root_layer(s_chess_window), s_chess_indicator_layer);
-  layer_add_child(s_chess_container_layer, s_chess_layer);
+  layer_add_child(window_get_root_layer(s_chess_window), s_chess_layer);
   
   init_board_state();
   
@@ -1315,8 +1308,6 @@ static void chess_window_unload(Window *window) {
   
   destroy_bitmaps();
   layer_destroy(s_chess_layer);
-  layer_destroy(s_chess_indicator_layer);
-  layer_destroy(s_chess_container_layer);
   window_destroy(s_chess_window);
 }
   
