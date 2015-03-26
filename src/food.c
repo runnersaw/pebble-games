@@ -9,6 +9,7 @@
 #define MOVE_LENGTH 1
 #define FRAME_WIDTH 120
 #define TIMEOUT 200
+#define BORDER 72-FRAME_WIDTH/2
   
 #define GRID_SIZE 20
 #define MAX_PLAYER_LENGTH 99
@@ -18,10 +19,7 @@
 #define PLAYER_LOCATION_KEY 24123
   
 static Window *s_food_window;
-static Layer *s_food_container_layer;
 static Layer *s_food_layer;
-static TextLayer *s_food_lost_layer;
-static TextLayer *s_food_score_layer;
 
 static AppTimer *timer;
 
@@ -34,8 +32,6 @@ static short turned = 0;
 static short captured = 0;
 static short food_x = 12;
 static short food_y = 15;
-
-static char score[3] = "  ";
 
 static short check_if_in_player(int x, int y, int start) {
   short l;
@@ -55,34 +51,6 @@ static void generate_food() {
   }
 }
 
-static void draw_score() {
-  text_layer_set_background_color(s_food_score_layer, GColorClear);
-  text_layer_set_text_color(s_food_score_layer, GColorBlack);
-  
-  if (length>=10) {
-    score[0] = (char)(((int)'0')+length/10);
-  } else {
-    score[0] = ' ';
-  }
-  score[1] = (char)(((int)'0')+length%10);
-  
-  text_layer_set_text(s_food_score_layer, score);
-
-  text_layer_set_text_alignment(s_food_score_layer, GTextAlignmentCenter);
-  
-  layer_add_child(window_get_root_layer(s_food_window), text_layer_get_layer(s_food_score_layer));
-}
-
-static void update_score() {  
-  if (length>=10) {
-    score[0] = (char)(((int)'0')+length/10);
-  } else {
-    score[0] = ' ';
-  }
-  score[1] = (char)(((int)'0')+length%10);
-  text_layer_set_text(s_food_score_layer, score);  
-}
-
 static void init_xy() {
   short j;
   for (j=0;j<MAX_PLAYER_LENGTH;j++) {
@@ -95,17 +63,7 @@ static void init_xy() {
 
 static void end_game() {
   app_timer_cancel(timer);
-  paused = 1;
-  
-  text_layer_set_background_color(s_food_lost_layer, GColorClear);
-  text_layer_set_text_color(s_food_lost_layer, GColorBlack);
-  text_layer_set_text(s_food_lost_layer, "End");
-
-  // Improve the layout to be more like a watchface
-  text_layer_set_text_alignment(s_food_lost_layer, GTextAlignmentCenter);
-  
-  layer_add_child(window_get_root_layer(s_food_window), text_layer_get_layer(s_food_lost_layer));
-  
+  paused = 2;  
 }
 
 static void check_end_game() {
@@ -149,7 +107,6 @@ static void move() {
     length += 1;
   }
   check_end_game();
-  update_score();
   turned = 0;
 }
 
@@ -183,20 +140,6 @@ static void turn_left() {
   turned = 1;
 }
 
-static void pause() {
-  if (paused == 1) {
-    timer = app_timer_register(TIMEOUT, move_with_timer, NULL);
-    paused = 0;
-  } else {
-    app_timer_cancel(timer);
-    paused = 1;
-  }
-}
-
-static void remove_end_game() {
-  layer_remove_from_parent(text_layer_get_layer(s_food_lost_layer));
-}
-
 void reset() {
   app_timer_cancel(timer);
   length = 1;
@@ -206,9 +149,20 @@ void reset() {
   turned = 0;
   captured = 0;
   generate_food();
-  update_score();
-  remove_end_game();
+  layer_mark_dirty(s_food_layer);
   timer = app_timer_register(TIMEOUT, move_with_timer, NULL);
+}
+
+static void pause() {
+  if (paused == 1) {
+    timer = app_timer_register(TIMEOUT, move_with_timer, NULL);
+    paused = 0;
+  } else if (paused == 2) {
+    reset();
+  } else {
+    app_timer_cancel(timer);
+    paused = 1;
+  }
 }
 
 static void food_up_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -242,16 +196,15 @@ void food_config_provider(Window *window) {
   window_long_click_subscribe(BUTTON_ID_SELECT, 500, food_select_long_click_handler, NULL);
 }
 
-static void draw_food_container(Layer *layer, GContext *ctx) {
+static void draw_food(Layer *layer, GContext *ctx) {
+  // draw container
   graphics_context_set_fill_color(ctx, GColorBlack);
-  graphics_draw_rect(ctx, layer_get_bounds(layer));
+  graphics_draw_rect(ctx, GRect(BORDER, BORDER, FRAME_WIDTH, FRAME_WIDTH));
   #ifdef PBL_PLATFORM_BASALT
     graphics_context_set_fill_color(ctx, GColorBrightGreen);
-    graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+    graphics_fill_rect(ctx, GRect(BORDER, BORDER, FRAME_WIDTH, FRAME_WIDTH), 0, GCornerNone);
   #endif
-}
-
-static void draw_food(Layer *layer, GContext *ctx) {
+    
   #ifdef PBL_PLATFORM_BASALT
     graphics_context_set_fill_color(ctx, GColorCobaltBlue);
   #else
@@ -259,12 +212,27 @@ static void draw_food(Layer *layer, GContext *ctx) {
   #endif
   int k;
   for (k=0;x_pos[k]>-1;k++) {
-    graphics_fill_rect(ctx, GRect(x_pos[k]*BOX_WIDTH, y_pos[k]*BOX_WIDTH, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
+    graphics_fill_rect(ctx, GRect(x_pos[k]*BOX_WIDTH+BORDER, y_pos[k]*BOX_WIDTH+BORDER, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
   }
   #ifdef PBL_PLATFORM_BASALT
     graphics_context_set_fill_color(ctx, GColorRed);
   #endif
-  graphics_fill_rect(ctx, GRect(food_x*BOX_WIDTH, food_y*BOX_WIDTH, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
+  graphics_fill_rect(ctx, GRect(food_x*BOX_WIDTH+BORDER, food_y*BOX_WIDTH+BORDER, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
+  
+  char score[3] = "  ";
+  if (length>=10) {
+    score[0] = (char)(((int)'0')+length/10);
+  } else {
+    score[0] = ' ';
+  }
+  score[1] = (char)(((int)'0')+length%10);
+  
+  graphics_context_set_text_color(ctx, GColorBlack);
+  graphics_draw_text(ctx, score, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(52,FRAME_WIDTH+BORDER,40,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  
+  if (paused==2) {
+    graphics_draw_text(ctx, "End", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(52,62,40,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  }
 }
 
 static void food_window_load(Window *window) {  
@@ -273,19 +241,14 @@ static void food_window_load(Window *window) {
   init_xy();
   generate_food();
   
-  s_food_container_layer = layer_create(GRect(12, 12, FRAME_WIDTH, FRAME_WIDTH));
-  s_food_layer = layer_create(GRect(0, 0, FRAME_WIDTH, FRAME_WIDTH));
-  s_food_lost_layer = text_layer_create(GRect(0, 55, 144, 50));
-  s_food_score_layer = text_layer_create(GRect(0, 130, 144, 30));
+  s_food_layer = layer_create(GRect(0, 0, 144, 152));
   
-  layer_set_update_proc(s_food_container_layer, draw_food_container);
   layer_set_update_proc(s_food_layer, draw_food);
-  layer_add_child(window_get_root_layer(s_food_window), s_food_container_layer);
-  layer_add_child(s_food_container_layer, s_food_layer);
+  
+  layer_add_child(window_get_root_layer(s_food_window), s_food_layer);
   
   window_set_click_config_provider(window, (ClickConfigProvider) food_config_provider);
   
-  draw_score();
   timer = app_timer_register(TIMEOUT, move_with_timer, NULL);
 }
 
@@ -293,9 +256,6 @@ static void food_window_unload(Window *window) {
   free(x_pos);
   free(y_pos);
   layer_destroy(s_food_layer);
-  layer_destroy(s_food_container_layer);
-  text_layer_destroy(s_food_lost_layer);
-  text_layer_destroy(s_food_score_layer);
   window_destroy(s_food_window);
 }
 
