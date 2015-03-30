@@ -15,6 +15,7 @@ static Layer *s_2048_layer;
 //static short two048_high_score;
 static short *two048_game_state;
 //static short two048_game_score;
+static GBitmap *background;
 
 static short get_piece(short x, short y) {
   return *(two048_game_state+4*y+x);
@@ -156,18 +157,23 @@ static GColor get_color_for_score(short score) {
 
 static void draw_2048(Layer *layer, GContext *ctx) {
   graphics_context_set_stroke_color(ctx, GColorBlack);
-  graphics_draw_rect(ctx, GRect((144-WIDTH)/2, (144-WIDTH)/2, WIDTH, WIDTH));
   short m,n, value;
   char text[5];
   for (m=0;m<4;m++) {
     for (n=0;n<4;n++) {
+      graphics_draw_bitmap_in_rect(ctx, background, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1));
       value = *(two048_game_state+m+4*n);
       graphics_context_set_text_color(ctx, GColorBlack);
       #ifdef PBL_PLATFORM_BASALT
         graphics_context_set_fill_color(ctx, get_color_for_score(value));
-        graphics_fill_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4, WIDTH/4), 0, GCornerNone);
+        graphics_fill_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1), 0, GCornerNone);
+      #else 
+        graphics_context_set_fill_color(ctx, GColorWhite);
+        if (value!=0) {
+          graphics_fill_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1), 0, GCornerNone);
+        }
       #endif
-      graphics_draw_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4, WIDTH/4));
+      graphics_draw_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1));
       if (value!=0) {
         if (value>=1000) {
           text[0] = (char)(((int)'0')+value/1000);
@@ -251,6 +257,8 @@ static void window_load(Window *window) {
   } else {
     init_board_state();
   }
+  
+  background = gbitmap_create_with_resource(RESOURCE_ID_GRAY_BACKGROUND);
 
   layer_set_update_proc(s_2048_layer, draw_2048);
   layer_add_child(window_get_root_layer(window), s_2048_layer);
@@ -258,7 +266,7 @@ static void window_load(Window *window) {
 
 static void window_unload(Window *window) {
   persist_write_data(TWO048_BOARD_STATE_KEY, two048_game_state, 16*sizeof(short));
-  
+  gbitmap_destroy(background);
   free(two048_game_state);
   layer_destroy(s_2048_layer);
   window_destroy(s_2048_window);

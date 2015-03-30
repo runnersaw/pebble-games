@@ -1260,9 +1260,9 @@ void chess_reset() {
 
 void chess_config_provider(Window *window) {
   // set click listeners
-  window_single_click_subscribe(BUTTON_ID_UP, up_handler);
+  window_single_repeating_click_subscribe(BUTTON_ID_UP, 200, up_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, select_handler);
-  window_single_click_subscribe(BUTTON_ID_DOWN, down_handler);
+  window_single_repeating_click_subscribe(BUTTON_ID_DOWN, 200, down_handler);
   window_single_click_subscribe(BUTTON_ID_BACK, back_handler);
   window_long_click_subscribe(BUTTON_ID_SELECT, 1000, chess_reset, NULL);
 }

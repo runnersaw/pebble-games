@@ -193,7 +193,7 @@ void menu_init() {
 
 void menu_deinit() {
     // Destroy Window
-    layer_destroy(simple_menu_layer_get_layer(s_games_menu));
+    simple_menu_layer_destroy(s_games_menu);
     window_destroy(s_menu_window);
 }
 

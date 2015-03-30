@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/gray_background.png",
+                "name": "GRAY_BACKGROUND",
+                "type": "png"
+            },
+            {
                 "file": "images/mastermind_icon.png",
                 "name": "MASTERMIND_ICON",
                 "type": "png"
