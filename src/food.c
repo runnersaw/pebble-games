@@ -5,6 +5,9 @@
 #define UP 1
 #define LEFT 2
 #define DOWN 3
+  
+#define DIRECTION_RIGHT -1
+#define DIRECTION_LEFT 1
 
 #define MOVE_LENGTH 1
 #define FRAME_WIDTH 120
@@ -29,7 +32,6 @@ static short length = 1;
 static short direction = RIGHT;
 static short paused = 0;
 static short turned = 0;
-static short captured = 0;
 static short food_x = 12;
 static short food_y = 15;
 
@@ -75,6 +77,7 @@ static void check_end_game() {
 }
 
 static void move() {
+  short captured = 0;
   short temp_x = x_pos[0];
   short temp_y = y_pos[0];
   if (direction == RIGHT) {
@@ -118,26 +121,16 @@ static void move_with_timer() {
   }
 }
 
-static void turn_right() {
-  if (turned == 0) {
-    if (direction!=0) {
-      direction -= 1;
+static void turn(short direction_turned) {
+  if (turned==0) {
+    direction+=direction_turned;
+    if (direction<0) {
+      direction+=4;
     } else {
-      direction = 3;
+      direction = direction%4;
     }
   }
-  turned = 1;
-}
-
-static void turn_left() {
-  if (turned == 0) {
-    if (direction!=3) {
-      direction += 1;
-    } else {
-      direction = 0;
-    }
-  }
-  turned = 1;
+  turned=1;
 }
 
 void reset() {
@@ -147,7 +140,6 @@ void reset() {
   direction = RIGHT;
   paused = 0;
   turned = 0;
-  captured = 0;
   generate_food();
   layer_mark_dirty(s_food_layer);
   timer = app_timer_register(TIMEOUT, move_with_timer, NULL);
@@ -166,7 +158,7 @@ static void pause() {
 }
 
 static void food_up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  turn_left();
+  turn(DIRECTION_LEFT);
 }
 
 static void food_select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -174,7 +166,7 @@ static void food_select_click_handler(ClickRecognizerRef recognizer, void *conte
 }
 
 static void food_down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  turn_right();
+  turn(DIRECTION_RIGHT);
 }
 
 static void food_select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -242,13 +234,10 @@ static void food_window_load(Window *window) {
   generate_food();
   
   s_food_layer = layer_create(GRect(0, 0, 144, 152));
-  
   layer_set_update_proc(s_food_layer, draw_food);
-  
   layer_add_child(window_get_root_layer(s_food_window), s_food_layer);
   
   window_set_click_config_provider(window, (ClickConfigProvider) food_config_provider);
-  
   timer = app_timer_register(TIMEOUT, move_with_timer, NULL);
 }
 

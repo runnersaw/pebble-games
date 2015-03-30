@@ -191,6 +191,31 @@ static short is_valid(short x, short y) {
   }
 }  
 
+static void generate_pawn_threaten(short state[8][8], short x, short y, short team) {
+  if (team*get_piece_at_position(state, x+1, y-team)<0) {
+    if (is_valid(x+1, y-team)==1) {
+      test_possible_moves[y-team][x+1] = 1;
+    }
+  }
+  if (team*get_piece_at_position(state, x-1, y-team)<0) {
+    if (is_valid(x-1, y-team)==1) {
+      test_possible_moves[y-team][x-1] = 1;
+    }
+  }
+  if (get_piece_at_position(state, x, y-team)==0) { // none
+    if (is_valid(x, y+1)==1) {
+      test_possible_moves[y-team][x] = 1;
+      if (y==1+5*(team+1)/2) {
+        if (get_piece_at_position(state, x, y-2*team)==0) {
+          if (is_valid(x, y-2*team)==1) {
+            test_possible_moves[y-2*team][x] = 1;
+          }
+        }
+      }
+    }
+  }
+}
+/*
 static void generate_black_pawn_threaten(short state[8][8], short x, short y) {
   if (get_piece_at_position(state, x+1, y+1)>0) {
     if (is_valid(x+1, y+1)==1) {
@@ -240,7 +265,7 @@ static void generate_white_pawn_threaten(short state[8][8], short x, short y) {
     }
   }
 }
-
+*/
 static void generate_knight_threaten(short state[8][8], short x, short y, short team) {
   if (-team*get_piece_at_position(state, x+2, y+1)>-1) { // none or opponent
     if (is_valid(x+2, y+1)==1) {
@@ -422,7 +447,7 @@ static void generate_moves_threatening(short state[8][8], short team) {
       piece=get_piece_at_position(state, k, l);
       if (team==BLACK_TEAM) {
         if (piece==BLACK_PAWN) {
-          generate_black_pawn_threaten(state, k, l);
+          generate_pawn_threaten(state, k, l, BLACK_TEAM);
         } else if (piece==BLACK_KNIGHT) {
           generate_knight_threaten(state, k, l, BLACK_TEAM);
         } else if (piece==BLACK_BISHOP) {
@@ -436,7 +461,7 @@ static void generate_moves_threatening(short state[8][8], short team) {
         }
       } else if (team==WHITE_TEAM) {
         if (piece==WHITE_PAWN) {
-          generate_white_pawn_threaten(state, k, l);
+          generate_pawn_threaten(state, k, l, WHITE_TEAM);
         } else if (piece==WHITE_KNIGHT) {
           generate_knight_threaten(state, k, l, WHITE_TEAM);
         } else if (piece==WHITE_BISHOP) {
@@ -519,7 +544,7 @@ static void generate_moves(short state[8][8], short team) {
       reset_state(test_possible_moves);
       if (team==BLACK_TEAM) {
         if (get_piece_at_position(state, x,y)==BLACK_PAWN) {
-          generate_black_pawn_threaten(state, x, y);        
+          generate_pawn_threaten(state, x, y, BLACK_TEAM);        
         } else if (get_piece_at_position(state, x,y)==BLACK_KNIGHT) {
           generate_knight_threaten(state, x, y, BLACK_TEAM);
         } else if (get_piece_at_position(state, x,y)==BLACK_ROOK) {
@@ -535,7 +560,7 @@ static void generate_moves(short state[8][8], short team) {
         if (get_piece_at_position(state, x,y)==WHITE_KNIGHT) {
           generate_knight_threaten(state, x, y, WHITE_TEAM);        
         } else if (get_piece_at_position(state, x,y)==WHITE_PAWN) {
-          generate_white_pawn_threaten(state, x, y);
+          generate_pawn_threaten(state, x, y, WHITE_TEAM);
         } else if (get_piece_at_position(state, x,y)==WHITE_ROOK) {
           generate_rook_threaten(state, x, y, WHITE_TEAM);
         } else if (get_piece_at_position(state, x,y)==WHITE_QUEEN) {
@@ -576,7 +601,7 @@ static void generate_move(short state[8][8], short x, short y) {
     team = BLACK_TEAM;
   }
   if (piece==BLACK_PAWN) {
-    generate_black_pawn_threaten(state, x, y);
+    generate_pawn_threaten(state, x, y, BLACK_TEAM);
   } else if (piece==BLACK_KNIGHT) {
     generate_knight_threaten(state, x, y, BLACK_TEAM);
   } else if (piece==BLACK_ROOK) {
@@ -590,7 +615,7 @@ static void generate_move(short state[8][8], short x, short y) {
   } else if (piece==WHITE_KNIGHT) {
     generate_knight_threaten(state, x, y, WHITE_TEAM);
   } else if (piece==WHITE_PAWN) {
-    generate_white_pawn_threaten(state, x, y);
+    generate_pawn_threaten(state, x, y, WHITE_TEAM);
   } else if (piece==WHITE_ROOK) {
     generate_rook_threaten(state, x, y, WHITE_TEAM);
   } else if (piece==WHITE_QUEEN) {
@@ -1063,9 +1088,6 @@ static void draw_chess(Layer *layer, GContext *ctx) {
     #endif
     graphics_draw_bitmap_in_rect(ctx, s_down_arrow, GRect(selected_x*WIDTH/8+2+LEFT_BORDER,0,12,12));
   }
-}
-
-static void draw_chess_container(Layer *layer, GContext *ctx) {
 }
 
 static short find_previous_x_piece() {
