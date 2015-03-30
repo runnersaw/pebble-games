@@ -151,6 +151,13 @@ static void destroy_bitmaps() {
   #endif
 }
 
+static void print_state(short state[8][8]) {
+  short m;
+  for (m=0;m<8;m++) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "%d %d %d %d %d %d %d %d", state[m][0], state[m][1], state[m][2], state[m][3], state[m][4], state[m][5], state[m][6], state[m][7]);
+  }
+}
+
 static void init_board_state() {
   short k,l;
   for (k=0;k<8;k++) {
@@ -215,57 +222,7 @@ static void generate_pawn_threaten(short state[8][8], short x, short y, short te
     }
   }
 }
-/*
-static void generate_black_pawn_threaten(short state[8][8], short x, short y) {
-  if (get_piece_at_position(state, x+1, y+1)>0) {
-    if (is_valid(x+1, y+1)==1) {
-      test_possible_moves[y+1][x+1] = 1;
-    }
-  }
-  if (get_piece_at_position(state, x-1, y+1)>0) {
-    if (is_valid(x-1, y+1)==1) {
-      test_possible_moves[y+1][x-1] = 1;
-    }
-  }
-  if (get_piece_at_position(state, x, y+1)==0) { // none
-    if (is_valid(x, y+1)==1) {
-      test_possible_moves[y+1][x] = 1;
-      if (y==1) {
-        if (get_piece_at_position(state, x, y+2)==0) {
-          if (is_valid(x, y+2)==1) {
-            test_possible_moves[y+2][x] = 1;
-          }
-        }
-      }
-    }
-  }
-}
 
-static void generate_white_pawn_threaten(short state[8][8], short x, short y) {
-  if (get_piece_at_position(state, x+1, y-1)<0) {
-    if (is_valid(x+1, y-1)==1) {
-      test_possible_moves[y-1][x+1] = 1;
-    }
-  }
-  if (get_piece_at_position(state, x-1, y-1)<0) {
-    if (is_valid(x-1, y-1)==1) {
-      test_possible_moves[y-1][x-1] = 1;
-    }
-  }
-  if (get_piece_at_position(state, x, y-1)==0) { // none
-    if (is_valid(x, y-1)==1) {
-      test_possible_moves[y-1][x] = 1;
-      if (y==6) {
-        if (get_piece_at_position(state, x, y-2)==0) {
-          if (is_valid(x, y-2)==1) {
-            test_possible_moves[y-2][x] = 1;
-          }
-        }
-      }
-    }
-  }
-}
-*/
 static void generate_knight_threaten(short state[8][8], short x, short y, short team) {
   if (-team*get_piece_at_position(state, x+2, y+1)>-1) { // none or opponent
     if (is_valid(x+2, y+1)==1) {
@@ -534,66 +491,9 @@ void generate_castle_possible(short state[8][8]) {
   }
 }
 
-static void generate_moves(short state[8][8], short team) {
-  short temp_possible_moves[8][8];
-  reset_state(possible_moves);
-  reset_state(possible_pieces_to_move);
-  short x,y;
-  for (x=0;x<8;x++) {
-    for (y=0;y<8;y++) {
-      reset_state(test_possible_moves);
-      if (team==BLACK_TEAM) {
-        if (get_piece_at_position(state, x,y)==BLACK_PAWN) {
-          generate_pawn_threaten(state, x, y, BLACK_TEAM);        
-        } else if (get_piece_at_position(state, x,y)==BLACK_KNIGHT) {
-          generate_knight_threaten(state, x, y, BLACK_TEAM);
-        } else if (get_piece_at_position(state, x,y)==BLACK_ROOK) {
-          generate_rook_threaten(state, x, y, BLACK_TEAM);        
-        } else if (get_piece_at_position(state, x,y)==BLACK_QUEEN) {
-          generate_queen_threaten(state, x, y, BLACK_TEAM);
-        } else if (get_piece_at_position(state, x,y)==BLACK_BISHOP) {
-          generate_bishop_threaten(state, x, y, BLACK_TEAM);
-        } else if (get_piece_at_position(state, x,y)==BLACK_KING) {
-          generate_king_threaten(state, x, y, BLACK_TEAM);
-        }
-      } else {
-        if (get_piece_at_position(state, x,y)==WHITE_KNIGHT) {
-          generate_knight_threaten(state, x, y, WHITE_TEAM);        
-        } else if (get_piece_at_position(state, x,y)==WHITE_PAWN) {
-          generate_pawn_threaten(state, x, y, WHITE_TEAM);
-        } else if (get_piece_at_position(state, x,y)==WHITE_ROOK) {
-          generate_rook_threaten(state, x, y, WHITE_TEAM);
-        } else if (get_piece_at_position(state, x,y)==WHITE_QUEEN) {
-          generate_queen_threaten(state, x, y, WHITE_TEAM);
-        } else if (get_piece_at_position(state, x,y)==WHITE_BISHOP) {
-          generate_bishop_threaten(state, x, y, WHITE_TEAM);
-        } else if (get_piece_at_position(state, x,y)==WHITE_KING) {
-          generate_king_threaten(state, x, y, WHITE_TEAM);
-          generate_castle_possible(state);
-        }
-      }
-      copy_state(temp_possible_moves,test_possible_moves);
-      short k,l;
-      for (k=0;k<8;k++) {
-        for (l=0;l<8;l++) {
-          if (temp_possible_moves[l][k]==1) {
-            if (test_move(state, x, y, k, l, team)==1) {
-              possible_moves[l][k]=1;
-              possible_pieces_to_move[y][x]=1;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
 static void generate_move(short state[8][8], short x, short y) {
   short temp_possible_moves[8][8];
   short piece, team;
-  reset_state(possible_moves);
-  reset_state(possible_pieces_to_move);
-  reset_state(test_possible_moves);
   piece=get_piece_at_position(state, x,y);
   if (piece>0) {
     team = WHITE_TEAM;
@@ -635,6 +535,21 @@ static void generate_move(short state[8][8], short x, short y) {
           possible_moves[l][k]=1;
           possible_pieces_to_move[y][x]=1;
         }
+      }
+    }
+  }
+}
+
+static void generate_moves(short state[8][8], short team) {
+  short temp_possible_moves[8][8];
+  reset_state(possible_moves);
+  reset_state(possible_pieces_to_move);
+  short x,y;
+  for (x=0;x<8;x++) {
+    for (y=0;y<8;y++) {
+      if (team*get_piece_at_position(state, x, y) > 0) {
+        reset_state(test_possible_moves);
+        generate_move(state,x,y);
       }
     }
   }
@@ -829,6 +744,9 @@ short find_move(short state[8][8], short team, short depth) {
     for (m=0;m<8;m++) {
       for (n=0;n<8;n++) {
         if (copy_possible_pieces[n][m]==1) { // if piece can move
+          reset_state(possible_moves);
+          reset_state(possible_pieces_to_move);
+          reset_state(test_possible_moves);
           generate_move(state,m,n);
           copy_state(copy_possible_moves, possible_moves);
           for (j=0;j<8;j++) {
@@ -1205,6 +1123,9 @@ static void select_handler() {
       selected = 1;
       selected_piece_x = selected_x;
       selected_piece_y = selected_y;
+      reset_state(possible_moves);
+      reset_state(possible_pieces_to_move);
+      reset_state(test_possible_moves);
       generate_move(board_state, selected_x, selected_y);
       selected_x = 0;
       selected_y = 0;
@@ -1276,6 +1197,8 @@ void chess_reset() {
   reset_state(test_possible_moves);
   reset_state(possible_pieces_to_move);
   generate_moves(board_state, turn);
+  print_state(possible_pieces_to_move);
+  print_state(possible_moves);
   
   layer_mark_dirty(s_chess_layer);
 }
