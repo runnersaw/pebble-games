@@ -46,7 +46,7 @@
             {
                 "file": "images/diamonds.png",
                 "name": "DIAMONDS_ICON",
-                "type": "png"
+                "type": "raw"
             },
             {
                 "file": "images/hearts.png",
