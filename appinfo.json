@@ -11,7 +11,7 @@
             {
                 "file": "images/done.png",
                 "name": "DONE_ICON",
-                "type": "pbi"
+                "type": "png"
             },
             {
                 "file": "images/gray_background.png",
@@ -41,7 +41,7 @@
             {
                 "file": "images/hit.png",
                 "name": "HIT_ICON",
-                "type": "pbi"
+                "type": "png"
             },
             {
                 "file": "images/diamonds.png",
