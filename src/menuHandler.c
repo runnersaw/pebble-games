@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "menuHandler.h"
+#include "instructions.h"
 #include "food.h"
 #include "tennis.h"
 #include "chess.h"
@@ -81,7 +82,7 @@ void load_bitmaps() {
   blackjack_icon = gbitmap_create_with_resource(RESOURCE_ID_BLACKJACK_ICON);
   two048_icon = gbitmap_create_with_resource(RESOURCE_ID_TWO048_ICON);
   #ifdef PBL_PLATFORM_BASALT
-    decrypt_icon = gbitmap_create_with_resource(RESOURCE_ID_decrypt_ICON);
+    decrypt_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
   #endif
 }
 
@@ -104,7 +105,7 @@ static void menu_window_load(Window *window) {
   menu_items[index] = (SimpleMenuItem){
     // You should give each menu item a title and callback
     .title = "Chess",
-    .callback = chess_init,
+    .callback = chess_chosen,
     .icon=chess_icon
   };
   index++;
