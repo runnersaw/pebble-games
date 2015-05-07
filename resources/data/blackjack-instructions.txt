@@ -1,0 +1,4 @@
+Use the UP button to recieve another card.
+Use the DOWN button to be done, and let the computer play its hand. 
+Hold the SELECT button to reset the score.
+Use the BACK button to exit.

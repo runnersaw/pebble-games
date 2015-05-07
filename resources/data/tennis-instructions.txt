@@ -1,0 +1,3 @@
+Use UP and DOWN to move up and down.
+Hold SELECT to reset.
+Use BACK to exit.
