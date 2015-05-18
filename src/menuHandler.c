@@ -1,6 +1,5 @@
 #include <pebble.h>
 #include "menuHandler.h"
-#include "instructions.h"
 #include "food.h"
 #include "tennis.h"
 #include "chess.h"
@@ -105,7 +104,7 @@ static void menu_window_load(Window *window) {
   menu_items[index] = (SimpleMenuItem){
     // You should give each menu item a title and callback
     .title = "Chess",
-    .callback = chess_chosen,
+    .callback = chess_init,
     .icon=chess_icon
   };
   index++;
