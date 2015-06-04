@@ -6,6 +6,6 @@ For 2048, hold the up button to exit to the menu.
 
 This games application was developed by Sawyer Vaughan.
 
-V3.1.
+V3.0.
 
 If you have any questions, feedback, or find a bug, please email me at sawyervaughan@gmail.com. 

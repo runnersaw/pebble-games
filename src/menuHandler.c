@@ -1,45 +1,29 @@
 #include <pebble.h>
 #include "menuHandler.h"
+#include "instructions.h"
 #include "food.h"
 #include "tennis.h"
 #include "chess.h"
 #include "blackjack.h"
 #include "2048.h"
 #include "decrypt.h"
-
-#define NUM_MENU_SECTIONS 1
-
-#define CHESS_INDEX 0
-#define BLACKJACK_INDEX 1
-#define TWO048_INDEX 2
 #ifdef PBL_PLATFORM_BASALT
-  #define DECRYPT_INDEX 3
-  #define FOOD_INDEX 4
-  #define TENNIS_INDEX 5
-  #define ABOUT_INDEX 6
-#else
-  #define FOOD_INDEX 3
-  #define TENNIS_INDEX 4
-  #define ABOUT_INDEX 5
+  #include "cards.h"
 #endif
 
 #ifdef PBL_PLATFORM_BASALT
-  #define NUM_MENU_ICONS 7
   #define NUM_MENU_ITEMS 7
 #else
-  #define NUM_MENU_ICONS 6
   #define NUM_MENU_ITEMS 6
 #endif
 #define CHAR_NUM 350
 #define HEIGHT 350
 
-#define ICON_SIZE 28
-
 static Window *s_menu_window;
 static Window *s_about_window;
 static ScrollLayer *s_about_scroll_layer;
 static TextLayer * s_about_text_layer;
-static MenuLayer *s_games_menu;
+static SimpleMenuLayer *s_games_menu;
 static char *about_text_ptr;
 
 static GBitmap *info_icon;
@@ -53,67 +37,10 @@ static GBitmap *two048_icon;
 #endif
 
 // A simple menu layer can have multiple sections
-static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data) {
-  return NUM_MENU_SECTIONS;
-}
+static SimpleMenuSection menu_sections[1];
 
 // Each section is composed of a number of menu items
-static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-  return NUM_MENU_ITEMS;
-}
-
-static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-  return MENU_CELL_BASIC_HEADER_HEIGHT;
-}
-
-static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
-  menu_cell_basic_header_draw(ctx, cell_layer, "Games");
-}
-
-static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *bmp) {
-  GRect frame = layer_get_frame(layer);
-
-  int font_size = 40;
-  int margin = (frame.size.h - ICON_SIZE) / 2;
-  int topMargin = (frame.size.h - font_size) / 2;
-  int textx = 2*margin+ICON_SIZE;
-  int textw = frame.size.w - 2*margin - ICON_SIZE;
-  #ifdef PBL_PLATFORM_BASALT
-    graphics_context_set_compositing_mode(ctx, GCompOpSet);
-  #else
-    graphics_context_set_text_color(ctx, GColorBlack);
-  #endif
-  graphics_draw_bitmap_in_rect(ctx, bmp, GRect(margin, margin, ICON_SIZE, ICON_SIZE));
-  graphics_draw_text(ctx, title, fonts_get_system_font(FONT_KEY_GOTHIC_28), GRect(textx, topMargin, textw, font_size), GTextOverflowModeFill, GTextAlignmentLeft, NULL);
-}
-
-static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-  switch (cell_index->row) {
-    case CHESS_INDEX:
-      draw_menu(ctx, cell_layer, "Chess", chess_icon);
-      break;
-    case BLACKJACK_INDEX:
-      draw_menu(ctx, cell_layer, "Blackjack", blackjack_icon);
-      break;
-    case TWO048_INDEX:
-      draw_menu(ctx, cell_layer, "2048", two048_icon);
-      break;
-    case FOOD_INDEX:
-      draw_menu(ctx, cell_layer, "FOOD!", food_icon);
-      break;
-    case TENNIS_INDEX:
-      draw_menu(ctx, cell_layer, "Tennis", tennis_icon);
-      break;
-    case ABOUT_INDEX:
-      draw_menu(ctx, cell_layer, "About", info_icon);
-      break;
-    #ifdef PBL_PLATFORM_BASALT
-    case DECRYPT_INDEX:
-      draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
-      break;
-    #endif
-  }
-}
+static SimpleMenuItem menu_items[NUM_MENU_ITEMS];
 
 void about_window_load() {
   about_text_ptr = malloc(CHAR_NUM*sizeof(char));
@@ -150,7 +77,7 @@ void about_chosen() {
   window_stack_push(s_about_window, true);
 }
 
-void load_bitmaps() {
+static void load_menu_bitmaps() {
   tennis_icon = gbitmap_create_with_resource(RESOURCE_ID_TENNIS_ICON);
   food_icon = gbitmap_create_with_resource(RESOURCE_ID_FOOD_ICON);
   chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
@@ -162,7 +89,7 @@ void load_bitmaps() {
   #endif
 }
 
-static void destroy_bitmaps() {
+static void destroy_menu_bitmaps() {
   gbitmap_destroy(info_icon);
   gbitmap_destroy(chess_icon);
   gbitmap_destroy(food_icon);
@@ -174,58 +101,84 @@ static void destroy_bitmaps() {
   #endif
 }
 
-static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
-  switch (cell_index->row) {
-    case CHESS_INDEX:
-      chess_init();
-      break;
-    case BLACKJACK_INDEX:
-      blackjack_init();
-      break;
-    case TWO048_INDEX:
-      two048_init();
-      break;
-    case FOOD_INDEX:
-      food_init();
-      break;
-    case TENNIS_INDEX:
-      tennis_init();
-      break;
-    case ABOUT_INDEX:
-      about_chosen();
-      break;
-    #ifdef PBL_PLATFORM_BASALT
-    case DECRYPT_INDEX:
-      decrypt_init();
-      break;
-    #endif
-  }
-}
-
 static void menu_window_load(Window *window) {
-  load_bitmaps();
-
+  load_menu_bitmaps();
+  short index = 0;
+  
+  menu_items[index] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "Chess",
+    .callback = chess_chosen,
+    .icon=chess_icon
+  };
+  index++;
+  
+  menu_items[index] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "Blackjack",
+    .callback = blackjack_init,
+    .icon = blackjack_icon
+  };
+  index++;
+  
+  menu_items[index] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "2048",
+    .callback = two048_init,
+    .icon = two048_icon
+  };
+  index++;
+  
+  #ifdef PBL_PLATFORM_BASALT
+  menu_items[index] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "Decrypt",
+    .callback = decrypt_init,
+    .icon = decrypt_icon
+  };
+  index++;
+  #endif
+  
+  menu_items[index] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "FOOD!",
+    .callback = food_init,
+    .icon = food_icon
+  };
+  index++;
+  
+  menu_items[index] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "Tennis",
+    .callback = tennis_init,
+    .icon = tennis_icon
+  };
+  index++;
+  
+  menu_items[index] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "About",
+    .callback = about_chosen,
+    .icon = info_icon
+  };
+  
+  // Header
+  menu_sections[0] = (SimpleMenuSection) {
+    .items = menu_items,
+    .num_items = ARRAY_LENGTH(menu_items)
+  };
+  
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
+  
+  s_games_menu = simple_menu_layer_create(bounds, window, menu_sections, 1, NULL);
 
-  s_games_menu = menu_layer_create(bounds);
-  menu_layer_set_callbacks(s_games_menu, NULL, (MenuLayerCallbacks){
-    .get_num_sections = menu_get_num_sections_callback,
-    .get_num_rows = menu_get_num_rows_callback,
-    .get_header_height = menu_get_header_height_callback,
-    .draw_header = menu_draw_header_callback,
-    .draw_row = menu_draw_row_callback,
-    .select_click = menu_select_callback,
-  });
-
-  menu_layer_set_click_config_onto_window(s_games_menu, window);
-
-  layer_add_child(window_layer, menu_layer_get_layer(s_games_menu));
+  // Add it to the window for display
+  layer_add_child(window_layer, simple_menu_layer_get_layer(s_games_menu));
 }
 
 static void menu_window_unload(Window *window) {
-  destroy_bitmaps();
-  menu_layer_destroy(s_games_menu);
+  destroy_menu_bitmaps();
 }
 
 void menu_init() {
@@ -244,10 +197,14 @@ void menu_init() {
 
 void menu_deinit() {
     // Destroy Window
+    simple_menu_layer_destroy(s_games_menu);
     window_destroy(s_menu_window);
 }
 
 int main() {
+  #ifdef PBL_PLATFORM_BASALT 
+    test();
+  #endif
   menu_init();
   app_event_loop();
   menu_deinit();

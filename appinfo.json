@@ -120,9 +120,9 @@
                 "type": "png"
             },
             {
-                "file": "images/diamonds.png",
+                "file": "data/diamonds.png",
                 "name": "DIAMONDS_ICON",
-                "type": "png"
+                "type": "raw"
             },
             {
                 "file": "images/hit.png",
@@ -168,8 +168,7 @@
         "basalt"
     ],
     "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
-    "versionCode": 1,
-    "versionLabel": "3.1",
+    "versionLabel": "3.0",
     "watchapp": {
         "watchface": false
     }
