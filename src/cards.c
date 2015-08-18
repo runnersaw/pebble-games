@@ -36,6 +36,14 @@
     return d;
   }
 
+  Deck deck_from_cards(short *cards) {
+    Deck d;
+    for (short i=0;i<52;i++) {
+      d.cards[i] = cards[i];
+    }
+    return d;
+  }
+
   void print_deck(Deck d) {
     for (short i=0; i<52; i++) {
       APP_LOG(APP_LOG_LEVEL_INFO, "%d", d.cards[i]);

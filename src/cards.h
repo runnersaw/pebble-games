@@ -7,4 +7,5 @@
 	Deck create_deck();
 	Deck shuffle_deck(Deck d);
 	Deck move_card(Deck d, short from, short to);
+	Deck deck_from_cards(short *cards);
 #endif

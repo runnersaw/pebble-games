@@ -10,6 +10,11 @@
   #define CARD_HEIGHT 40
   #define CARD_WIDTH 19
   #define ARROW_WIDTH 12
+
+  #define CARDS_KEY 23874
+  #define PILE_KEY 3465
+  #define SHOWN_KEY 875
+
     
   static Window *s_solitaire_window;
   static Layer *s_solitaire_layer;
@@ -522,11 +527,53 @@
     gbitmap_destroy(down_arrow);
   }
 
+  static void save_game() {
+    if (win == 0) {
+      persist_write_data(CARDS_KEY, deck.cards, sizeof(deck.cards));
+      persist_write_data(PILE_KEY, pile_number, sizeof(pile_number));
+      persist_write_data(SHOWN_KEY, num_shown, sizeof(num_shown));
+    } else {
+      persist_delete(CARDS_KEY);
+      persist_delete(PILE_KEY);
+      persist_delete(SHOWN_KEY);
+    }
+  }
+
+  static void load_game() {
+    short c[52];
+    if (persist_exists(CARDS_KEY) && persist_exists(SHOWN_KEY) && persist_exists(PILE_KEY)) {
+      persist_read_data(CARDS_KEY, c, sizeof(c));
+      persist_read_data(PILE_KEY, pile_number, sizeof(pile_number));
+      persist_read_data(SHOWN_KEY, num_shown, sizeof(num_shown));
+      for (short i=0;i<13;i++) {
+        APP_LOG(APP_LOG_LEVEL_INFO, "pile_number[%d] = %d", i, pile_number[i]);
+      }
+
+      deck = deck_from_cards(c);
+
+      status = SELECTING_ROW;
+      selected_row = 0;
+      selected_to_row = 0;
+      selected_card = -1;
+      num_selected_cards = 1;
+      num_pile_resets = 0;
+
+      no_matches_found = 0;
+
+      win = 0; // 1 for win, -1 for loss
+      set_pile_number();
+
+      layer_mark_dirty(s_solitaire_layer);
+    } else {
+      reset();
+    }
+  }
+
   static void solitaire_window_load(Window *window) {        
     s_solitaire_layer = layer_create(GRect(0, 0, 144, 168));
 
     srand((unsigned) time(NULL));
-    reset();
+    load_game();
     load_bitmaps();
     
     layer_set_update_proc(s_solitaire_layer, draw_solitaire);
@@ -537,6 +584,7 @@
   }
 
   static void solitaire_window_unload(Window *window) {
+    save_game();
     destroy_bitmaps();
     layer_destroy(s_solitaire_layer);
     window_destroy(s_solitaire_window);

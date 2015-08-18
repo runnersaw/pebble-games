@@ -733,7 +733,33 @@ short find_move(short state[8][8], short team, short depth) {
   short copy_possible_pieces[8][8];
   
   if (move_count==1) {
-    move(board_state,6,1,6,2);
+    move(board_state,0,1,0,2);
+    turn=-turn;
+    move_count++;
+    generate_moves(board_state, turn);
+    find_next_x_piece();
+    find_next_y_piece();
+    layer_mark_dirty(s_chess_layer);
+    selected = 0;
+    display_box=0;
+    return -1;
+  }
+  
+  if (move_count==3) {
+    move(board_state,0,2,0,3);
+    turn=-turn;
+    move_count++;
+    generate_moves(board_state, turn);
+    find_next_x_piece();
+    find_next_y_piece();
+    layer_mark_dirty(s_chess_layer);
+    selected = 0;
+    display_box=0;
+    return -1;
+  }
+  
+  if (move_count==5) {
+    move(board_state,0,3,0,4);
     turn=-turn;
     move_count++;
     generate_moves(board_state, turn);
@@ -1043,10 +1069,10 @@ static void draw_chess(Layer *layer, GContext *ctx) {
   // draw win conditions
   if (team_won == WHITE_TEAM) {
     graphics_context_set_text_color(ctx, GColorBlack);
-    graphics_draw_text(ctx, "BLACK WINS", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 72, 144, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, "WHITE WINS", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 72, 144, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   } else if (team_won == BLACK_TEAM) {
     graphics_context_set_text_color(ctx, GColorBlack);
-    graphics_draw_text(ctx, "WHITE WINS", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 72, 144, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, "BLACK WINS", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 72, 144, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
 
@@ -1187,7 +1213,7 @@ static void select_handler() {
     
     move(board_state, selected_piece_x, selected_piece_y, selected_x, selected_y);
     change_turn();
-    if (!is_move_possible(board_state, turn)) {
+    if (!is_move_possible(board_state, turn) && turn == WHITE_TEAM) {
       black_win();
     }
     generate_moves(board_state, turn);
@@ -1302,6 +1328,7 @@ static void chess_window_unload(Window *window) {
     persist_write_int(CASTLE_RIGHT_KEY, 1);
     persist_write_int(CASTLE_LEFT_KEY, 1);
     persist_write_int(MOVE_NO_KEY, 0);
+    team_won = 0;
   }
   
   destroy_bitmaps();
