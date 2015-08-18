@@ -54,6 +54,7 @@ static GBitmap *food_icon;
 static GBitmap *blackjack_icon;
 static GBitmap *two048_icon;
 #ifdef PBL_PLATFORM_BASALT
+  static GBitmap *solitaire_icon;
   static GBitmap *decrypt_icon;
 #endif
 
@@ -119,7 +120,7 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
       draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
       break;
     case SOLITAIRE_INDEX:
-      draw_menu(ctx, cell_layer, "Solitaire", NULL);
+      draw_menu(ctx, cell_layer, "Solitaire", solitaire_icon);
       break;
     #endif
   }
@@ -169,6 +170,7 @@ void load_bitmaps() {
   two048_icon = gbitmap_create_with_resource(RESOURCE_ID_TWO048_ICON);
   #ifdef PBL_PLATFORM_BASALT
     decrypt_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
+    solitaire_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
   #endif
 }
 
@@ -181,6 +183,7 @@ static void destroy_bitmaps() {
   gbitmap_destroy(two048_icon);
   #ifdef PBL_PLATFORM_BASALT
     gbitmap_destroy(decrypt_icon);
+    gbitmap_destroy(solitaire_icon);
   #endif
 }
 

@@ -733,33 +733,7 @@ short find_move(short state[8][8], short team, short depth) {
   short copy_possible_pieces[8][8];
   
   if (move_count==1) {
-    move(board_state,0,1,0,2);
-    turn=-turn;
-    move_count++;
-    generate_moves(board_state, turn);
-    find_next_x_piece();
-    find_next_y_piece();
-    layer_mark_dirty(s_chess_layer);
-    selected = 0;
-    display_box=0;
-    return -1;
-  }
-  
-  if (move_count==3) {
-    move(board_state,0,2,0,3);
-    turn=-turn;
-    move_count++;
-    generate_moves(board_state, turn);
-    find_next_x_piece();
-    find_next_y_piece();
-    layer_mark_dirty(s_chess_layer);
-    selected = 0;
-    display_box=0;
-    return -1;
-  }
-  
-  if (move_count==5) {
-    move(board_state,0,3,0,4);
+    move(board_state,3,1,3,2);
     turn=-turn;
     move_count++;
     generate_moves(board_state, turn);

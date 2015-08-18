@@ -4,7 +4,7 @@
         ""
     ],
     "companyName": "Sawyer Vaughan",
-    "longName": "Games for Pebble",
+    "longName": "Games for PebbleF",
     "projectType": "native",
     "resources": {
         "media": [
@@ -147,6 +147,11 @@
             {
                 "file": "images/decrypt_icon.png",
                 "name": "DECRYPT_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/solitaire_icon.png",
+                "name": "SOLITAIRE_ICON",
                 "type": "png"
             },
             {
