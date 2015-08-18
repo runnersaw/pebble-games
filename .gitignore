@@ -1,5 +1,5 @@
 build/
+!build/games.pbw
+
 *~
 /pebble-screenshot*
-
-!build/games.pbw
