@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "blackjack.h"
+#include "cards.h"
   
 #define CARD_HEIGHT 40
 #define CARD_WIDTH 20
@@ -236,38 +237,6 @@ void blackjack_config_provider(Window *window) {
   window_long_click_subscribe(BUTTON_ID_SELECT, 1000, reset_score, NULL);
 }
 
-static void draw_score(GContext *ctx, short score, short x, short y) {
-  graphics_context_set_text_color(ctx, GColorBlack);
-  char score_text[5] = "";
-  if (score >= 1000) {
-    score_text[0] = (char)(((int)'0')+score/1000);
-  } else {
-    score_text[0] = ' ';
-  }
-  if (score >= 100) {
-    score_text[1] = (char)(((int)'0')+score/100%10);
-  } else {
-    score_text[1] = ' ';
-  }
-  if (score >= 10) {
-    score_text[2] = (char)(((int)'0')+score/10%10);
-  } else {
-    score_text[2] = ' ';
-  }
-  score_text[3] = (char)(((int)'0')+score%10);
-  score_text[4] = '\0';
-  graphics_draw_text(ctx, score_text, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(x,y,30,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
-}
-
-static void draw_scores(GContext *ctx) {
-  draw_score(ctx, person_score, 144-ACTION_BAR_WIDTH-30,72);
-  draw_score(ctx, dealer_score, 144-ACTION_BAR_WIDTH-30,54);
-  draw_score(ctx, person_value, 72-ACTION_BAR_WIDTH/2-15, WINDOW_HEIGHT-25);
-  if (dealer_show==1) {
-    draw_score(ctx, dealer_value, 72-ACTION_BAR_WIDTH/2-15, 0);
-  }
-}
-
 static void draw_card(short card, short x, short y, short shown, GContext *ctx) {// stacks are 0-7, 8-11 for aces, 12 for pile
   if (shown == 0) {
     graphics_fill_rect(ctx, GRect(x,y,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
@@ -316,6 +285,38 @@ static void draw_card(short card, short x, short y, short shown, GContext *ctx) 
   }
   graphics_draw_bitmap_in_rect(ctx, bmp_to_draw, GRect(x+3,y+CARD_HEIGHT/2+3, 14, 14));
   return;
+}
+
+static void draw_score(GContext *ctx, short score, short x, short y) {
+  graphics_context_set_text_color(ctx, GColorBlack);
+  char score_text[5] = "";
+  if (score >= 1000) {
+    score_text[0] = (char)(((int)'0')+score/1000);
+  } else {
+    score_text[0] = ' ';
+  }
+  if (score >= 100) {
+    score_text[1] = (char)(((int)'0')+score/100%10);
+  } else {
+    score_text[1] = ' ';
+  }
+  if (score >= 10) {
+    score_text[2] = (char)(((int)'0')+score/10%10);
+  } else {
+    score_text[2] = ' ';
+  }
+  score_text[3] = (char)(((int)'0')+score%10);
+  score_text[4] = '\0';
+  graphics_draw_text(ctx, score_text, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(x,y,30,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
+}
+
+static void draw_scores(GContext *ctx) {
+  draw_score(ctx, person_score, 144-ACTION_BAR_WIDTH-30,72);
+  draw_score(ctx, dealer_score, 144-ACTION_BAR_WIDTH-30,54);
+  draw_score(ctx, person_value, 72-ACTION_BAR_WIDTH/2-15, WINDOW_HEIGHT-25);
+  if (dealer_show==1) {
+    draw_score(ctx, dealer_value, 72-ACTION_BAR_WIDTH/2-15, 0);
+  }
 }
 
 static void draw_blackjack(Layer *layer, GContext *ctx) {

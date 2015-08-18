@@ -66,6 +66,8 @@ static Layer *s_chess_layer;
   static GBitmap *s_down_arrow;
 #endif
 
+static short team_won = 0; // will change to +1 for white, -1 for black
+
 static short selected = 0;
 static short on_x = 1;
 static short selected_piece_x = 0;
@@ -555,6 +557,20 @@ static void generate_moves(short state[8][8], short team) {
   }
 }
 
+static short is_move_possible(short state[8][8], short team) {
+  generate_moves(state, team);
+  short canMove = 0;
+  short i, j;
+  for (i=0;i<8;i++) {
+    for (j=0;j<8;j++) {
+      if (possible_moves[i][j] == 1) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 static void move(short state[8][8], short start_x, short start_y, short end_x, short end_y) {
   if(get_piece_at_position(board_state, start_x, start_y)==WHITE_KING) {
     if (start_x==4&&start_y==7&&end_x==6&&end_y==7) {
@@ -804,10 +820,26 @@ short find_move(short state[8][8], short team, short depth) {
   return score;
 }
 
+static void white_win() {
+  team_won = WHITE_TEAM;
+  layer_mark_dirty(s_chess_layer);
+}
+
+static void black_win() {
+  team_won = BLACK_TEAM;
+  layer_mark_dirty(s_chess_layer);
+}
+
 static void change_turn() {
+  // this is called only after white moves, i think
   turn=-turn;
   move_count++;
+
   if (turn==BLACK_TEAM) {
+    if (!is_move_possible(board_state, turn)) {
+      white_win();
+      return;
+    }
     short search_depth=SEARCH_DEPTH, pieces=0, j,k;
     for (j=0;j<8;j++) {
       for (k=0;k<8;k++) {
@@ -822,6 +854,7 @@ static void change_turn() {
     if (pieces<3) {
       search_depth++;
     }
+
     find_move(board_state, turn, search_depth);
   }
 }
@@ -1006,6 +1039,15 @@ static void draw_chess(Layer *layer, GContext *ctx) {
     #endif
     graphics_draw_bitmap_in_rect(ctx, s_down_arrow, GRect(selected_x*WIDTH/8+2+LEFT_BORDER,0,12,12));
   }
+
+  // draw win conditions
+  if (team_won == WHITE_TEAM) {
+    graphics_context_set_text_color(ctx, GColorBlack);
+    graphics_draw_text(ctx, "BLACK WINS", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 72, 144, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+  } else if (team_won == BLACK_TEAM) {
+    graphics_context_set_text_color(ctx, GColorBlack);
+    graphics_draw_text(ctx, "WHITE WINS", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 72, 144, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+  }
 }
 
 static short find_previous_x_piece() {
@@ -1145,6 +1187,9 @@ static void select_handler() {
     
     move(board_state, selected_piece_x, selected_piece_y, selected_x, selected_y);
     change_turn();
+    if (!is_move_possible(board_state, turn)) {
+      black_win();
+    }
     generate_moves(board_state, turn);
     find_next_x_piece();
     find_next_y_piece();
@@ -1246,10 +1291,18 @@ static void chess_window_load(Window *window) {
 }
 
 static void chess_window_unload(Window *window) {
-  persist_write_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
-  persist_write_int(CASTLE_RIGHT_KEY, white_castle_possible_right);
-  persist_write_int(CASTLE_LEFT_KEY, white_castle_possible_left);
-  persist_write_int(MOVE_NO_KEY, move_count);
+  if (team_won == 0) {
+    persist_write_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
+    persist_write_int(CASTLE_RIGHT_KEY, white_castle_possible_right);
+    persist_write_int(CASTLE_LEFT_KEY, white_castle_possible_left);
+    persist_write_int(MOVE_NO_KEY, move_count);
+  } else {
+    init_board_state();
+    persist_write_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
+    persist_write_int(CASTLE_RIGHT_KEY, 1);
+    persist_write_int(CASTLE_LEFT_KEY, 1);
+    persist_write_int(MOVE_NO_KEY, 0);
+  }
   
   destroy_bitmaps();
   layer_destroy(s_chess_layer);

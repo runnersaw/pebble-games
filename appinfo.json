@@ -4,7 +4,7 @@
         ""
     ],
     "companyName": "Sawyer Vaughan",
-    "longName": "PebbGames",
+    "longName": "Games for Pebble",
     "projectType": "native",
     "resources": {
         "media": [
@@ -162,14 +162,14 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "PebbGames",
+    "shortName": "Games",
     "targetPlatforms": [
         "aplite",
         "basalt"
     ],
     "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
     "versionCode": 1,
-    "versionLabel": "3.1",
+    "versionLabel": "4.0",
     "watchapp": {
         "watchface": false
     }

@@ -5,7 +5,11 @@
 #include "chess.h"
 #include "blackjack.h"
 #include "2048.h"
-#include "decrypt.h"
+#ifdef PBL_PLATFORM_BASALT
+  #include "decrypt.h"
+  #include "cards.h"
+  #include "solitaire.h"
+#endif
 
 #define NUM_MENU_SECTIONS 1
 
@@ -14,9 +18,10 @@
 #define TWO048_INDEX 2
 #ifdef PBL_PLATFORM_BASALT
   #define DECRYPT_INDEX 3
-  #define FOOD_INDEX 4
-  #define TENNIS_INDEX 5
-  #define ABOUT_INDEX 6
+  #define SOLITAIRE_INDEX 4
+  #define FOOD_INDEX 5
+  #define TENNIS_INDEX 6
+  #define ABOUT_INDEX 7
 #else
   #define FOOD_INDEX 3
   #define TENNIS_INDEX 4
@@ -24,8 +29,8 @@
 #endif
 
 #ifdef PBL_PLATFORM_BASALT
-  #define NUM_MENU_ICONS 7
-  #define NUM_MENU_ITEMS 7
+  #define NUM_MENU_ICONS 8
+  #define NUM_MENU_ITEMS 8
 #else
   #define NUM_MENU_ICONS 6
   #define NUM_MENU_ITEMS 6
@@ -83,7 +88,9 @@ static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *b
   #else
     graphics_context_set_text_color(ctx, GColorBlack);
   #endif
-  graphics_draw_bitmap_in_rect(ctx, bmp, GRect(margin, margin, ICON_SIZE, ICON_SIZE));
+  if (bmp != NULL) {
+    graphics_draw_bitmap_in_rect(ctx, bmp, GRect(margin, margin, ICON_SIZE, ICON_SIZE));
+  }
   graphics_draw_text(ctx, title, fonts_get_system_font(FONT_KEY_GOTHIC_28), GRect(textx, topMargin, textw, font_size), GTextOverflowModeFill, GTextAlignmentLeft, NULL);
 }
 
@@ -110,6 +117,9 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
     #ifdef PBL_PLATFORM_BASALT
     case DECRYPT_INDEX:
       draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
+      break;
+    case SOLITAIRE_INDEX:
+      draw_menu(ctx, cell_layer, "Solitaire", NULL);
       break;
     #endif
   }
@@ -197,6 +207,9 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
     #ifdef PBL_PLATFORM_BASALT
     case DECRYPT_INDEX:
       decrypt_init();
+      break;
+    case SOLITAIRE_INDEX:
+      solitaire_init();
       break;
     #endif
   }
