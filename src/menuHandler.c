@@ -36,12 +36,13 @@
   #define NUM_MENU_ITEMS 6
 #endif
 #define CHAR_NUM 350
-#define HEIGHT 500
 
 #define ICON_SIZE 28
 #if defined(PBL_ROUND)
+  #define HEIGHT 500
   #define CELL_HEIGHT 60
 #else
+  #define HEIGHT 350
   #define CELL_HEIGHT 45
 #endif
 
