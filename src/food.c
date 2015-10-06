@@ -10,9 +10,15 @@
 #define DIRECTION_LEFT 1
 
 #define MOVE_LENGTH 1
-#define FRAME_WIDTH 120
 #define TIMEOUT 200
-#define BORDER 72-FRAME_WIDTH/2
+
+#if defined(PBL_ROUND)
+  #define FRAME_WIDTH 120
+  #define BORDER 90-FRAME_WIDTH/2
+#else
+  #define FRAME_WIDTH 120
+  #define BORDER 72-FRAME_WIDTH/2
+#endif
   
 #define GRID_SIZE 20
 #define MAX_PLAYER_LENGTH 99
@@ -192,12 +198,12 @@ static void draw_food(Layer *layer, GContext *ctx) {
   // draw container
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_draw_rect(ctx, GRect(BORDER, BORDER, FRAME_WIDTH, FRAME_WIDTH));
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     graphics_context_set_fill_color(ctx, GColorBrightGreen);
     graphics_fill_rect(ctx, GRect(BORDER, BORDER, FRAME_WIDTH, FRAME_WIDTH), 0, GCornerNone);
   #endif
     
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     graphics_context_set_fill_color(ctx, GColorCobaltBlue);
   #else
     graphics_context_set_fill_color(ctx, GColorBlack);
@@ -206,7 +212,7 @@ static void draw_food(Layer *layer, GContext *ctx) {
   for (k=0;x_pos[k]>-1;k++) {
     graphics_fill_rect(ctx, GRect(x_pos[k]*BOX_WIDTH+BORDER, y_pos[k]*BOX_WIDTH+BORDER, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
   }
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     graphics_context_set_fill_color(ctx, GColorRed);
   #endif
   graphics_fill_rect(ctx, GRect(food_x*BOX_WIDTH+BORDER, food_y*BOX_WIDTH+BORDER, BOX_WIDTH-1, BOX_WIDTH-1), 0, GCornerNone);
@@ -220,7 +226,7 @@ static void draw_food(Layer *layer, GContext *ctx) {
   score[1] = (char)(((int)'0')+length%10);
   
   graphics_context_set_text_color(ctx, GColorBlack);
-  graphics_draw_text(ctx, score, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(52,FRAME_WIDTH+BORDER,40,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, score, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(BORDER,FRAME_WIDTH+BORDER,FRAME_WIDTH,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
   
   if (paused==2) {
     graphics_draw_text(ctx, "End", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(52,62,40,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
@@ -232,8 +238,11 @@ static void food_window_load(Window *window) {
   y_pos=malloc(MAX_PLAYER_LENGTH*sizeof(short));
   init_xy();
   generate_food();
-  
-  s_food_layer = layer_create(GRect(0, 0, 144, 152));
+
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);
+
+  s_food_layer = layer_create(bounds);
   layer_set_update_proc(s_food_layer, draw_food);
   layer_add_child(window_get_root_layer(s_food_window), s_food_layer);
   
@@ -252,7 +261,7 @@ void food_init() {
   // Create main Window element and assign to pointer
   s_food_window = window_create();
 
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     window_set_background_color(s_food_window, GColorIslamicGreen);
   #endif
   

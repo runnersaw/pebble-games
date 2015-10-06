@@ -7,7 +7,17 @@
 #define ANIMATION_TIME 800
 #define BLACKJACK_PERSON_SCORE_KEY 122
 #define BLACKJACK_DEALER_SCORE_KEY 428
-#define WINDOW_HEIGHT 152
+#define SCORE_HEIGHT 22
+#define SCORE_WIDTH 30
+#define MARGIN 0
+
+#if defined(PBL_ROUND)
+  #define CENTER_MARGIN 5
+#elif defined(PBL_SDK_3)
+  #define CENTER_MARGIN (168/2-2*MARGIN-CARD_HEIGHT-SCORE_HEIGHT)
+#else
+  #define CENTER_MARGIN (152/2-2*MARGIN-CARD_HEIGHT-SCORE_HEIGHT)
+#endif
   
 static Window *s_blackjack_window;
 static Layer *s_blackjack_layer;
@@ -259,7 +269,7 @@ static void draw_card(short card, short x, short y, short shown, GContext *ctx) 
     card_text[1] = '\0';
   }
   short suit = card%4;
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     if (suit==0 || suit==1) {
       graphics_context_set_text_color(ctx, GColorRed);
     } else {
@@ -307,15 +317,16 @@ static void draw_score(GContext *ctx, short score, short x, short y) {
   }
   score_text[3] = (char)(((int)'0')+score%10);
   score_text[4] = '\0';
-  graphics_draw_text(ctx, score_text, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(x,y,30,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
+  graphics_draw_text(ctx, score_text, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(x,y,SCORE_WIDTH,SCORE_HEIGHT), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
 static void draw_scores(GContext *ctx) {
-  draw_score(ctx, person_score, 144-ACTION_BAR_WIDTH-30,72);
-  draw_score(ctx, dealer_score, 144-ACTION_BAR_WIDTH-30,54);
-  draw_score(ctx, person_value, 72-ACTION_BAR_WIDTH/2-15, WINDOW_HEIGHT-25);
+  GSize size = layer_get_bounds(s_blackjack_layer).size;
+  draw_score(ctx, person_score, size.w-ACTION_BAR_WIDTH-SCORE_WIDTH, size.h/2);
+  draw_score(ctx, dealer_score, size.w-ACTION_BAR_WIDTH-SCORE_WIDTH, size.h/2 - SCORE_HEIGHT);
+  draw_score(ctx, person_value, (size.w-ACTION_BAR_WIDTH-SCORE_WIDTH)/2, size.h/2+CENTER_MARGIN+CARD_HEIGHT+MARGIN);
   if (dealer_show==1) {
-    draw_score(ctx, dealer_value, 72-ACTION_BAR_WIDTH/2-15, 0);
+    draw_score(ctx, dealer_value, (size.w-ACTION_BAR_WIDTH-SCORE_WIDTH)/2, size.h/2-CENTER_MARGIN-CARD_HEIGHT-MARGIN-SCORE_HEIGHT);
   }
 }
 
@@ -323,15 +334,17 @@ static void draw_blackjack(Layer *layer, GContext *ctx) {
   //120 2140 4160 6281 83102 103122 123142
   graphics_context_set_stroke_color(ctx, GColorBlack);
   graphics_context_set_fill_color(ctx, GColorBlack);
+
+  GSize size = layer_get_bounds(s_blackjack_layer).size;
   
   draw_scores(ctx);
   
   short m;
   for (m=0;m<person_size;m++) {
     if (person_size<7) {
-      draw_card(*(person+m), 72-9*person_size+18*m-ACTION_BAR_WIDTH/2, WINDOW_HEIGHT-CARD_HEIGHT-20, 1, ctx);
+      draw_card(*(person+m), size.w/2-9*person_size+18*m-ACTION_BAR_WIDTH/2, size.h/2+CENTER_MARGIN, 1, ctx);
     } else {
-      draw_card(*(person+m), 72-7*person_size+14*m-ACTION_BAR_WIDTH/2, WINDOW_HEIGHT-CARD_HEIGHT-20, 1, ctx);
+      draw_card(*(person+m), size.w/2-7*person_size+14*m-ACTION_BAR_WIDTH/2, size.h/2+CENTER_MARGIN, 1, ctx);
     }
   }
   for (m=0;m<dealer_size;m++) {
@@ -340,9 +353,9 @@ static void draw_blackjack(Layer *layer, GContext *ctx) {
       show = 0;
     }
     if (dealer_size<7) {
-      draw_card(*(dealer+m), 72-9*dealer_size+18*m-ACTION_BAR_WIDTH/2, 20, show, ctx);
+      draw_card(*(dealer+m), size.w/2-9*dealer_size+18*m-ACTION_BAR_WIDTH/2, size.h/2-CENTER_MARGIN-CARD_HEIGHT, show, ctx);
     } else {
-      draw_card(*(dealer+m), 72-7*dealer_size+14*m-ACTION_BAR_WIDTH/2, 20, show, ctx);
+      draw_card(*(dealer+m), size.w/2-7*dealer_size+14*m-ACTION_BAR_WIDTH/2, size.h/2-CENTER_MARGIN-CARD_HEIGHT, show, ctx);
     }
   }
 }
@@ -380,8 +393,11 @@ static void blackjack_window_load(Window *window) {
   
   person_value = get_value(person, person_size);
   dealer_value = get_value(dealer, dealer_size);
+
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);
   
-  s_blackjack_layer = layer_create(GRect(0, 0, 144, WINDOW_HEIGHT));
+  s_blackjack_layer = layer_create(bounds);
   
   s_blackjack_actionbar = action_bar_layer_create();
   action_bar_layer_add_to_window(s_blackjack_actionbar, window);

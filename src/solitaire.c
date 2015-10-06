@@ -1,4 +1,4 @@
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   #include <pebble.h>
   #include "cards.h"
   #include "solitaire.h"
@@ -7,14 +7,31 @@
   #define SELECTING_CARD 1
   #define SELECTING_LOC 2
 
-  #define CARD_HEIGHT 40
-  #define CARD_WIDTH 19
   #define ARROW_WIDTH 12
 
   #define CARDS_KEY 23874
   #define PILE_KEY 3465
   #define SHOWN_KEY 875
 
+  #if defined(PBL_ROUND)
+    #define WIDTH 132
+    #define HEIGHT 132
+    #define CARD_HEIGHT 40
+    #define CARD_WIDTH 17
+    #define MARGIN 1
+    #define CARD_SHOW_GAP 25
+    #define NOT_SHOWN_GAP 2
+    #define HIDDEN_GAP 4
+  #else
+    #define WIDTH 144
+    #define HEIGHT 168
+    #define CARD_HEIGHT 40
+    #define CARD_WIDTH 19
+    #define MARGIN 1
+    #define CARD_SHOW_GAP 30
+    #define NOT_SHOWN_GAP 3
+    #define HIDDEN_GAP 5
+  #endif
     
   static Window *s_solitaire_window;
   static Layer *s_solitaire_layer;
@@ -125,7 +142,7 @@
 
     short moveable = 0;
     // go through rows to find cards it can move to 
-    short i, card_value, card_suit, card_red;
+    short i, card_red;
     for (i=0;i<11;i++) {
       can_move[i] = 0;
     }
@@ -424,16 +441,19 @@
   }
 
   static void draw_solitaire(Layer *layer, GContext *ctx) {
+    GSize size = layer_get_bounds(layer).size;
+    int left = (size.w - WIDTH)/2;
+    int top = (size.h - HEIGHT)/2;
     // draw the deck
     if (selected_row == 12) {
       graphics_context_set_fill_color(ctx, GColorYellow);
     } else {
       graphics_context_set_fill_color(ctx, GColorDukeBlue);
     }
-    graphics_fill_rect(ctx, GRect(144-CARD_WIDTH,0,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
+    graphics_fill_rect(ctx, GRect(left+WIDTH-CARD_WIDTH,top,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
     graphics_context_set_stroke_color(ctx, GColorBlack);
     graphics_context_set_stroke_width(ctx, 1);
-    graphics_draw_round_rect(ctx, GRect(144-CARD_WIDTH,0,CARD_WIDTH,CARD_HEIGHT), 4);
+    graphics_draw_round_rect(ctx, GRect(left+WIDTH-CARD_WIDTH,top,CARD_WIDTH,CARD_HEIGHT), 4);
 
     // draw the draw pile
     short down = ((status == SELECTING_ROW) && (selected_row == 11));
@@ -444,31 +464,31 @@
     for (; i>=0; i--) {
       short card = get_card_number(11, i);
       short highlight = ((status == SELECTING_CARD) && (selected_row == 11) && (card==get_card_number(11,0)));
-      draw_card(deck.cards[card], 104-12*i, down*12, 1, highlight, ctx); // always show
+      draw_card(deck.cards[card], left+WIDTH-2*CARD_WIDTH-MARGIN-12*i, top+down*12, 1, highlight, ctx); // always show
     }
 
     // draw the place for aces
     for (short i=0; i<4; i++) {
       short pile = i+7;
-      graphics_draw_round_rect(ctx, GRect(20*i,0,CARD_WIDTH,CARD_HEIGHT), 4);
+      graphics_draw_round_rect(ctx, GRect(left+(CARD_WIDTH+MARGIN)*i,top,CARD_WIDTH,CARD_HEIGHT), 4);
       if (selected_to_row == pile && status == SELECTING_LOC) {
         graphics_context_set_fill_color(ctx, GColorYellow);
-        graphics_fill_rect(ctx, GRect(20*i,0,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
+        graphics_fill_rect(ctx, GRect(left+(CARD_WIDTH+MARGIN)*i,top,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
       }
       for (short j=pile_number[pile]-1; j>=0; j--) {
         short card = get_card_number(pile, j);
         short highlight = ((status == SELECTING_LOC) && (pile == selected_to_row));
-        draw_card(deck.cards[card], 20*i, 0, 1, highlight, ctx); // 1 means show
+        draw_card(deck.cards[card], left+(CARD_WIDTH+MARGIN)*i, top, 1, highlight, ctx); // 1 means show
       }
     }
 
     // draw the 7 piles
     short num_not_shown;
     for (short i=0; i<7; i++) {
-      graphics_draw_round_rect(ctx, GRect(20*i,CARD_HEIGHT+10,CARD_WIDTH,CARD_HEIGHT), 4);
+      graphics_draw_round_rect(ctx, GRect(left+(CARD_WIDTH+MARGIN)*i,top+CARD_HEIGHT+10,CARD_WIDTH,CARD_HEIGHT), 4);
       if (selected_to_row == i && status == SELECTING_LOC && pile_number[i] == 0) {
         graphics_context_set_fill_color(ctx, GColorYellow);
-        graphics_fill_rect(ctx, GRect(20*i,CARD_HEIGHT+10,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
+        graphics_fill_rect(ctx, GRect(left+(CARD_WIDTH+MARGIN)*i,top+CARD_HEIGHT+10,CARD_WIDTH,CARD_HEIGHT), 4, GCornersAll);
       }
 
       short y = CARD_HEIGHT + 10;
@@ -482,16 +502,16 @@
         if (y > max_height) {
           y = max_height;
         }
-        draw_card(deck.cards[card], 20*i, y, j<num_shown[i], highlight, ctx);
+        draw_card(deck.cards[card], left+(CARD_WIDTH+MARGIN)*i, top+y, j<num_shown[i], highlight, ctx);
 
         if (j>=num_shown[i]) {
-          y += 3;
+          y += NOT_SHOWN_GAP;
         } else if ((status == SELECTING_CARD) && (selected_card == card)) {
-          y += 30;
+          y += CARD_SHOW_GAP;
         } else if (((selected_row != i) || (status != SELECTING_CARD)) && (j == num_shown[i]-1)) {
-          y += 30;
+          y += CARD_SHOW_GAP;
         } else {
-          y += 5;
+          y += HIDDEN_GAP;
         }
       }
     }
@@ -499,15 +519,15 @@
     if (status == SELECTING_ROW) {
       graphics_context_set_compositing_mode(ctx, GCompOpSet);
       if ((selected_row < 7) && (selected_row >=0)) {
-        graphics_draw_bitmap_in_rect(ctx, down_arrow, GRect(20*selected_row+10-ARROW_WIDTH/2, CARD_HEIGHT-ARROW_WIDTH+10, ARROW_WIDTH, ARROW_WIDTH));
+        graphics_draw_bitmap_in_rect(ctx, down_arrow, GRect(left+(CARD_WIDTH+MARGIN)*selected_row+10-ARROW_WIDTH/2, top+CARD_HEIGHT-ARROW_WIDTH+10, ARROW_WIDTH, ARROW_WIDTH));
       } else if (selected_row == 11) {
-        graphics_draw_bitmap_in_rect(ctx, down_arrow, GRect(104+10-ARROW_WIDTH/2, 0, ARROW_WIDTH, ARROW_WIDTH));
+        graphics_draw_bitmap_in_rect(ctx, down_arrow, GRect(left+WIDTH-2*CARD_WIDTH-MARGIN+10-ARROW_WIDTH/2, top, ARROW_WIDTH, ARROW_WIDTH));
       }
     }
 
     // draw win
     if (win == 1) {
-      graphics_draw_text(ctx, "YOU WIN!", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0,148,144,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+      graphics_draw_text(ctx, "YOU WIN!", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0,top+HEIGHT-20,left+WIDTH,20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
     }
   }
 
@@ -569,8 +589,11 @@
     }
   }
 
-  static void solitaire_window_load(Window *window) {        
-    s_solitaire_layer = layer_create(GRect(0, 0, 144, 168));
+  static void solitaire_window_load(Window *window) {    
+    Layer *window_layer = window_get_root_layer(window);
+    GRect bounds = layer_get_frame(window_layer);    
+  
+    s_solitaire_layer = layer_create(bounds);
 
     srand((unsigned) time(NULL));
     load_game();

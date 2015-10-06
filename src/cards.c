@@ -1,4 +1,4 @@
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   #include <pebble.h>
   #include "cards.h"
   

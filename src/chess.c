@@ -1,10 +1,17 @@
 #include <pebble.h>
 #include "chess.h"
-  
-#define WIDTH 136
+
+#if defined(PBL_ROUND)
+  #define WIDTH 120
+  #define TOP_BORDER 30
+  #define LEFT_BORDER 30
+#else
+  #define WIDTH 136
+  #define TOP_BORDER 12
+  #define LEFT_BORDER 4
+#endif
 #define BOX_BORDER 2
-#define TOP_BORDER 12
-#define LEFT_BORDER 4
+#define ARROW_SIZE 12
   
 #define BLACK_TEAM -1
 #define WHITE_TEAM 1
@@ -36,7 +43,7 @@
 static Window *s_chess_window;
 static Layer *s_chess_layer;
 
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   static GBitmap *s_black_bishop;
   static GBitmap *s_black_rook;
   static GBitmap *s_black_knight;
@@ -90,7 +97,7 @@ static short white_castle_possible_right = 1;
 static short white_castle_possible_left = 1;
 
 static void create_bitmaps() {
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     s_black_king = gbitmap_create_with_resource(RESOURCE_ID_BLACK_KING_BLACK);
     s_black_knight = gbitmap_create_with_resource(RESOURCE_ID_BLACK_KNIGHT_BLACK);
     s_black_rook = gbitmap_create_with_resource(RESOURCE_ID_BLACK_ROOK_BLACK);
@@ -122,7 +129,7 @@ static void create_bitmaps() {
 }
 
 static void destroy_bitmaps() {
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     gbitmap_destroy(s_black_king);
     gbitmap_destroy(s_black_knight);
     gbitmap_destroy(s_black_rook);
@@ -861,7 +868,7 @@ static void change_turn() {
 
 static void draw_chess(Layer *layer, GContext *ctx) {
   short m,n;
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     graphics_context_set_stroke_color(ctx, GColorRajah);
     graphics_context_set_fill_color(ctx, GColorRajah);
     for (m=0;m<4;m++) {
@@ -896,7 +903,7 @@ static void draw_chess(Layer *layer, GContext *ctx) {
   // draw pieces
   for (m=0;m<8;m++) {
     for (n=0;n<8;n++) {
-      #ifdef PBL_PLATFORM_BASALT
+      #if defined(PBL_COLOR)
         graphics_context_set_compositing_mode(ctx, GCompOpSet);
         if (get_piece_at_position(board_state,n,m) == WHITE_PAWN) {
           graphics_draw_bitmap_in_rect(ctx, s_white_pawn, GRect(n*WIDTH/8+LEFT_BORDER+1,m*WIDTH/8+TOP_BORDER+1,15,15));
@@ -1000,14 +1007,14 @@ static void draw_chess(Layer *layer, GContext *ctx) {
     } else {
       graphics_context_set_stroke_color(ctx, GColorBlack);
     }
-    #ifdef PBL_PLATFORM_BASALT
+    #if defined(PBL_COLOR)
       graphics_context_set_stroke_color(ctx, GColorBlack);
     #endif
     graphics_draw_rect(ctx, GRect(selected_x*WIDTH/8+BOX_BORDER+LEFT_BORDER,selected_y*WIDTH/8+BOX_BORDER+TOP_BORDER,WIDTH/8-2*BOX_BORDER,WIDTH/8-2*BOX_BORDER));
     for (m=0;m<8;m++) {
       for (n=0;n<8;n++) {
         if (get_piece_at_position(possible_moves,m,n)==1) {
-          #ifdef PBL_PLATFORM_BASALT
+          #if defined(PBL_COLOR)
             graphics_context_set_fill_color(ctx, GColorBlack);
           #else
             if ((m+n)%2==1) {
@@ -1021,7 +1028,7 @@ static void draw_chess(Layer *layer, GContext *ctx) {
       }
     }
   } else if (display_box==1) {
-    #ifdef PBL_PLATFORM_BASALT
+    #if defined(PBL_COLOR)
       graphics_context_set_stroke_color(ctx, GColorBlack);
     #else
       if ((selected_x+selected_y)%2==1) { // black square
@@ -1032,12 +1039,12 @@ static void draw_chess(Layer *layer, GContext *ctx) {
     #endif
     graphics_draw_rect(ctx, GRect(selected_x*WIDTH/8+BOX_BORDER+LEFT_BORDER,selected_y*WIDTH/8+BOX_BORDER+TOP_BORDER,WIDTH/8-2*BOX_BORDER,WIDTH/8-2*BOX_BORDER));
   } else {
-    #ifdef PBL_PLATFORM_BASALT
+    #if defined(PBL_COLOR)
       graphics_context_set_compositing_mode(ctx, GCompOpSet);
     #else
       graphics_context_set_compositing_mode(ctx, GCompOpAssign);
     #endif
-    graphics_draw_bitmap_in_rect(ctx, s_down_arrow, GRect(selected_x*WIDTH/8+2+LEFT_BORDER,0,12,12));
+    graphics_draw_bitmap_in_rect(ctx, s_down_arrow, GRect(selected_x*WIDTH/8+2+LEFT_BORDER,TOP_BORDER-ARROW_SIZE,ARROW_SIZE,ARROW_SIZE));
   }
 
   // draw win conditions
@@ -1259,8 +1266,11 @@ void chess_config_provider(Window *window) {
 
 static void chess_window_load(Window *window) {
   create_bitmaps();
+
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);
   
-  s_chess_layer = layer_create(GRect(0, 0, 144, 152));
+  s_chess_layer = layer_create(bounds);
   
   layer_set_update_proc(s_chess_layer, draw_chess);
   layer_add_child(window_get_root_layer(s_chess_window), s_chess_layer);

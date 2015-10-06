@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "decrypt.h"
 
+#if defined(PBL_COLOR)
 #define RED 0
 #define ORANGE 1
 #define YELLOW 2
@@ -11,16 +12,28 @@
 #define NUM_GUESSES 6
 
 #define MAX_GUESSES 10
-#define WIDTH 80
-#define HEIGHT 120
+#if defined(PBL_ROUND)
+  #define WIDTH 75
+  #define HEIGHT 120
+  #define COLORS_MARGIN 30
+  #define LEFT_MARGIN 25
+  #define TOP_MARGIN 20
+  #define INDICATOR_WIDTH 60
+#else
+  #define WIDTH 80
+  #define HEIGHT 120
+  #define COLORS_MARGIN 15
+  #define LEFT_MARGIN 10
+  #define TOP_MARGIN 5
+  #define INDICATOR_WIDTH 50
+#endif
 #define BORDER 4
 #define COVER_HEIGHT 10
 #define RADIUS 3
 #define INDICATOR_RADIUS 2
-#define LEFT_BORDER 10
-#define TOP_BORDER 5
+#define WIN_TEXT_HEIGHT 30
+#define COLORS_WIDTH 144
 
-#ifdef PBL_PLATFORM_BASALT
 static Window *s_decrypt_window;
 static Layer *s_decrypt_layer;
 
@@ -139,30 +152,32 @@ static void set_fill_color(GContext *ctx, short color) {
 }
 
 static void draw_decrypt(Layer *layer, GContext *ctx) {
+  GSize size = layer_get_bounds(layer).size;
+
   graphics_context_set_fill_color(ctx, GColorRajah);
-  graphics_fill_rect(ctx, GRect(LEFT_BORDER, TOP_BORDER, WIDTH, HEIGHT), 0, GCornerNone);
+  graphics_fill_rect(ctx, GRect(LEFT_MARGIN, TOP_MARGIN, WIDTH, HEIGHT), 0, GCornerNone);
   graphics_context_set_fill_color(ctx, GColorBlack);
-  graphics_fill_rect(ctx, GRect(LEFT_BORDER+BORDER, TOP_BORDER+BORDER, WIDTH-2*BORDER, COVER_HEIGHT), 0, GCornerNone);
+  graphics_fill_rect(ctx, GRect(LEFT_MARGIN+BORDER, TOP_MARGIN+BORDER, WIDTH-2*BORDER, COVER_HEIGHT), 0, GCornerNone);
   short m, n;
   for (m=0;m<no_guesses;m++) {
     short right_right = right_color_right_place(target, (guesses+NUM_GUESSES*m));
     short right_wrong = right_color_wrong_place(target, (guesses+NUM_GUESSES*m));
     for (n=0;n<NUM_GUESSES;n++) {
       set_fill_color(ctx, *(guesses+NUM_GUESSES*m+n));
-      graphics_fill_circle(ctx, GPoint(LEFT_BORDER+WIDTH/(NUM_GUESSES+1)*(n+1), TOP_BORDER+COVER_HEIGHT+BORDER+(m+1)*(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), RADIUS);
+      graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH/(NUM_GUESSES+1)*(n+1), TOP_MARGIN+COVER_HEIGHT+BORDER+(m+1)*(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), RADIUS);
     }
     for (n=0;n<right_right;n++) {
       graphics_context_set_fill_color(ctx, GColorWhite);
-      graphics_fill_circle(ctx, GPoint(LEFT_BORDER+WIDTH+(144-WIDTH-LEFT_BORDER+BORDER)/(NUM_GUESSES+1)*(n+1), TOP_BORDER+COVER_HEIGHT+BORDER+(m+1)*(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), INDICATOR_RADIUS);
+      graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH+INDICATOR_WIDTH/(NUM_GUESSES+1)*(n+1), TOP_MARGIN+COVER_HEIGHT+BORDER+(m+1)*(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), INDICATOR_RADIUS);
     }
     for (n=0;n<right_wrong;n++) {
       graphics_context_set_fill_color(ctx, GColorBlack);
-      graphics_fill_circle(ctx, GPoint(LEFT_BORDER+WIDTH+(144-WIDTH-LEFT_BORDER+BORDER)/(NUM_GUESSES+1)*(right_right+n+1), TOP_BORDER+COVER_HEIGHT+BORDER+(m+1)*(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), INDICATOR_RADIUS);
+      graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH+INDICATOR_WIDTH/(NUM_GUESSES+1)*(right_right+n+1), TOP_MARGIN+COVER_HEIGHT+BORDER+(m+1)*(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), INDICATOR_RADIUS);
     }
   }
   for (m=0;m<current_guess_no_chosen;m++) {
     set_fill_color(ctx, *(current_guess+m));
-    graphics_fill_circle(ctx, GPoint(LEFT_BORDER+WIDTH/(NUM_GUESSES+1)*(m+1), TOP_BORDER+HEIGHT-(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), RADIUS);
+    graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH/(NUM_GUESSES+1)*(m+1), TOP_MARGIN+HEIGHT-(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), RADIUS);
 
   }
   for (m=0;m<NUM_COLORS;m++) {
@@ -171,15 +186,15 @@ static void draw_decrypt(Layer *layer, GContext *ctx) {
       radius = 7;
     }
     set_fill_color(ctx, m);
-    graphics_fill_circle(ctx, GPoint(144/(NUM_COLORS+1)*(m+1), 140), radius);
+    graphics_fill_circle(ctx, GPoint((size.w-COLORS_WIDTH)/2 + COLORS_WIDTH/(NUM_COLORS+1)*(m+1), size.h-COLORS_MARGIN), radius);
   }
   if (win==1) {
     graphics_context_set_text_color(ctx, GColorBlack);
-    graphics_draw_text(ctx, "WIN", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,58,144,30), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
+    graphics_draw_text(ctx, "WIN", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,(size.h-WIN_TEXT_HEIGHT)/2,size.w,WIN_TEXT_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
   }
   if (lose==1) {
     graphics_context_set_text_color(ctx, GColorBlack);
-    graphics_draw_text(ctx, "LOSE", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,58,144,30), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
+    graphics_draw_text(ctx, "LOSE", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,(size.h-WIN_TEXT_HEIGHT)/2,size.w,WIN_TEXT_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
   }
 }
 
@@ -223,7 +238,10 @@ static void back_handler() {
 }
 
 static void decrypt_load(Window *window) {
-  s_decrypt_layer = layer_create(GRect(0,0,144,152));
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);
+
+  s_decrypt_layer = layer_create(bounds);
   layer_set_update_proc(s_decrypt_layer, draw_decrypt);
   layer_add_child(window_get_root_layer(window), s_decrypt_layer);
 
