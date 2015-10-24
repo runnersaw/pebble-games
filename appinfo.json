@@ -170,7 +170,8 @@
     "shortName": "Games",
     "targetPlatforms": [
         "aplite",
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
     "versionCode": 1,

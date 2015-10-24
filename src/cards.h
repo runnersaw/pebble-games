@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
 	typedef struct Deck_s {
 		short cards[52];
 	} Deck;

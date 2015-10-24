@@ -1,7 +1,11 @@
 #include <pebble.h>
 #include "2048.h"
 
-#define WIDTH 140
+#if defined(PBL_ROUND)
+  #define WIDTH 130
+#else
+  #define WIDTH 140
+#endif
 #define RIGHT 0
 #define UP 1
 #define LEFT 2
@@ -121,7 +125,7 @@ static short collapse(short direction) {
   return collapsed;
 }
 
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
 static GColor get_color_for_score(short score) {
   GColor color = GColorWhite;
   if (score == 2) {
@@ -159,21 +163,23 @@ static void draw_2048(Layer *layer, GContext *ctx) {
   graphics_context_set_stroke_color(ctx, GColorBlack);
   short m,n, value;
   char text[5];
+
+  GSize size = layer_get_bounds(layer).size;
   for (m=0;m<4;m++) {
     for (n=0;n<4;n++) {
-      graphics_draw_bitmap_in_rect(ctx, background, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1));
+      graphics_draw_bitmap_in_rect(ctx, background, GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1));
       value = *(two048_game_state+m+4*n);
       graphics_context_set_text_color(ctx, GColorBlack);
-      #ifdef PBL_PLATFORM_BASALT
+      #if defined(PBL_COLOR)
         graphics_context_set_fill_color(ctx, get_color_for_score(value));
-        graphics_fill_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1), 0, GCornerNone);
+        graphics_fill_rect(ctx, GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1), 0, GCornerNone);
       #else 
         graphics_context_set_fill_color(ctx, GColorWhite);
         if (value!=0) {
-          graphics_fill_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1), 0, GCornerNone);
+          graphics_fill_rect(ctx, GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1), 0, GCornerNone);
         }
       #endif
-      graphics_draw_rect(ctx, GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1));
+      graphics_draw_rect(ctx, GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1));
       if (value!=0) {
         if (value>=1000) {
           text[0] = (char)(((int)'0')+value/1000);
@@ -192,7 +198,11 @@ static void draw_2048(Layer *layer, GContext *ctx) {
         }
         text[3] = (char)(((int)'0')+value%10);
         text[4] = '\0';
-        graphics_draw_text(ctx, text, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect((144-WIDTH)/2+WIDTH/4*m, (144-WIDTH)/2+WIDTH/4*n+WIDTH/8-15, WIDTH/4, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+        #if defined(PBL_ROUND)
+          graphics_draw_text(ctx, text, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n+WIDTH/8-15, WIDTH/4, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+        #else
+          graphics_draw_text(ctx, text, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n+WIDTH/8-15, WIDTH/4, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+        #endif
       }
     }
   }
@@ -249,7 +259,10 @@ static void click_config_provider(void *context) {
 }
 
 static void window_load(Window *window) {
-  s_2048_layer = layer_create(GRect(0,0,144,152));
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);
+
+  s_2048_layer = layer_create(bounds);
   two048_game_state = malloc(16*sizeof(short));
   
   if (persist_exists(TWO048_BOARD_STATE_KEY)) {

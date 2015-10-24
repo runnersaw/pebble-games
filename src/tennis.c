@@ -1,7 +1,6 @@
 #include <pebble.h>
 #include "tennis.h"
 
-#define WIDTH 144
 #define HEIGHT 100
 #define HORIZ_VEL 3
 #define PADDLE_HEIGHT 20
@@ -12,7 +11,19 @@
 #define PERSON_VEL 3
 #define MAX_Y_VEL 5
 #define WINNING_SCORE 7
-#define TOP_BORDER 10
+#if defined(PBL_ROUND)
+  #define TOP_MARGIN (180-HEIGHT)/2
+  #define WIDTH 160
+  #define LEFT_MARGIN 10
+  #define SCORE_MARGIN 10
+  #define SCORE_HEIGHT 20
+#else
+  #define TOP_MARGIN 10
+  #define WIDTH 144
+  #define LEFT_MARGIN 0
+  #define SCORE_MARGIN 10
+  #define SCORE_HEIGHT 20
+#endif
   
 static Window *s_tennis_window;
 static Layer *s_tennis_layer;
@@ -42,28 +53,28 @@ static void draw_tennis(Layer *layer, GContext *ctx) {
   // scores
   char person_score_char[2] = " ";
   person_score_char[0] = (char)(((int)'0')+person_score);
-  graphics_draw_text(ctx, person_score_char, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0,HEIGHT+2*TOP_BORDER,72,20), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, person_score_char, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0,HEIGHT+SCORE_MARGIN,LEFT_MARGIN+WIDTH/2,SCORE_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   
   char cpu_score_char[2] = " ";
   cpu_score_char[0] = (char)(((int)'0')+cpu_score);
-  graphics_draw_text(ctx, cpu_score_char, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(72,HEIGHT+2*TOP_BORDER,72,20), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, cpu_score_char, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(LEFT_MARGIN+WIDTH/2,HEIGHT+SCORE_MARGIN,LEFT_MARGIN+WIDTH/2,SCORE_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   
   // boundaries
-  graphics_draw_line(ctx, GPoint(0,TOP_BORDER), GPoint(WIDTH,TOP_BORDER));
-  graphics_draw_line(ctx, GPoint(0, HEIGHT+TOP_BORDER), GPoint(WIDTH, HEIGHT+TOP_BORDER));
+  graphics_draw_line(ctx, GPoint(LEFT_MARGIN,TOP_MARGIN), GPoint(LEFT_MARGIN+WIDTH,TOP_MARGIN));
+  graphics_draw_line(ctx, GPoint(LEFT_MARGIN, HEIGHT+TOP_MARGIN), GPoint(LEFT_MARGIN+WIDTH, HEIGHT+TOP_MARGIN));
   
   // ball
-  graphics_fill_circle(ctx, GPoint(ball_x_pos, ball_y_pos+TOP_BORDER), BALL_RADIUS);
+  graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+ball_x_pos, ball_y_pos+TOP_MARGIN), BALL_RADIUS);
   
   // paddles
-  graphics_draw_line(ctx, GPoint(PADDLE_DISTANCE, person_y_pos+TOP_BORDER), GPoint(PADDLE_DISTANCE, person_y_pos+PADDLE_HEIGHT+TOP_BORDER));
-  graphics_draw_line(ctx, GPoint(WIDTH-PADDLE_DISTANCE, cpu_y_pos+TOP_BORDER), GPoint(WIDTH-PADDLE_DISTANCE, cpu_y_pos+PADDLE_HEIGHT+TOP_BORDER));
+  graphics_draw_line(ctx, GPoint(LEFT_MARGIN+PADDLE_DISTANCE, person_y_pos+TOP_MARGIN), GPoint(LEFT_MARGIN+PADDLE_DISTANCE, person_y_pos+PADDLE_HEIGHT+TOP_MARGIN));
+  graphics_draw_line(ctx, GPoint(LEFT_MARGIN+WIDTH-PADDLE_DISTANCE, cpu_y_pos+TOP_MARGIN), GPoint(LEFT_MARGIN+WIDTH-PADDLE_DISTANCE, cpu_y_pos+PADDLE_HEIGHT+TOP_MARGIN));
   
   // win/lose
   if (win==1) {
-    graphics_draw_text(ctx, "WIN", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(52,66,40,20), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, "WIN", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(LEFT_MARGIN,TOP_MARGIN+HEIGHT/2,WIDTH,SCORE_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   } else if (lose==1) {
-    graphics_draw_text(ctx, "LOSE", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(52,66,40,20), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, "LOSE", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(LEFT_MARGIN,TOP_MARGIN+HEIGHT/2,WIDTH,SCORE_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
 
@@ -204,7 +215,10 @@ void tennis_config_provider(Window *window) {
 }
 
 static void tennis_window_load(Window *window) {
-  s_tennis_layer = layer_create(GRect(0, 0, 144, 152));
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);
+
+  s_tennis_layer = layer_create(bounds);
   
   layer_set_update_proc(s_tennis_layer, draw_tennis);
   layer_add_child(window_get_root_layer(s_tennis_window), s_tennis_layer);

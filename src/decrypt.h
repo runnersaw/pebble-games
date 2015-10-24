@@ -1,5 +1,5 @@
 #pragma once
 
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   void decrypt_init();
 #endif

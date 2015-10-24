@@ -5,7 +5,7 @@
 #include "chess.h"
 #include "blackjack.h"
 #include "2048.h"
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   #include "decrypt.h"
   #include "cards.h"
   #include "solitaire.h"
@@ -16,7 +16,7 @@
 #define CHESS_INDEX 0
 #define BLACKJACK_INDEX 1
 #define TWO048_INDEX 2
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   #define DECRYPT_INDEX 3
   #define SOLITAIRE_INDEX 4
   #define FOOD_INDEX 5
@@ -28,7 +28,7 @@
   #define ABOUT_INDEX 5
 #endif
 
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   #define NUM_MENU_ICONS 8
   #define NUM_MENU_ITEMS 8
 #else
@@ -36,9 +36,15 @@
   #define NUM_MENU_ITEMS 6
 #endif
 #define CHAR_NUM 350
-#define HEIGHT 350
 
 #define ICON_SIZE 28
+#if defined(PBL_ROUND)
+  #define HEIGHT 500
+  #define CELL_HEIGHT 60
+#else
+  #define HEIGHT 350
+  #define CELL_HEIGHT 45
+#endif
 
 static Window *s_menu_window;
 static Window *s_about_window;
@@ -53,7 +59,7 @@ static GBitmap *tennis_icon;
 static GBitmap *food_icon;
 static GBitmap *blackjack_icon;
 static GBitmap *two048_icon;
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_COLOR)
   static GBitmap *solitaire_icon;
   static GBitmap *decrypt_icon;
 #endif
@@ -69,14 +75,19 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-  return MENU_CELL_BASIC_HEADER_HEIGHT;
+  return 0;
+}
+
+static int16_t menu_get_cell_height_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context) {
+  return CELL_HEIGHT;
 }
 
 static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
-  menu_cell_basic_header_draw(ctx, cell_layer, "Games");
+  //menu_cell_basic_header_draw(ctx, cell_layer, "Games");
 }
 
 static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *bmp) {
+  /*
   GRect frame = layer_get_frame(layer);
 
   int font_size = 40;
@@ -84,7 +95,7 @@ static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *b
   int topMargin = (frame.size.h - font_size) / 2;
   int textx = 2*margin+ICON_SIZE;
   int textw = frame.size.w - 2*margin - ICON_SIZE;
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     graphics_context_set_compositing_mode(ctx, GCompOpSet);
   #else
     graphics_context_set_text_color(ctx, GColorBlack);
@@ -93,6 +104,8 @@ static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *b
     graphics_draw_bitmap_in_rect(ctx, bmp, GRect(margin, margin, ICON_SIZE, ICON_SIZE));
   }
   graphics_draw_text(ctx, title, fonts_get_system_font(FONT_KEY_GOTHIC_28), GRect(textx, topMargin, textw, font_size), GTextOverflowModeFill, GTextAlignmentLeft, NULL);
+  */
+  menu_cell_basic_draw(ctx, layer, title, NULL, bmp);
 }
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
@@ -115,7 +128,7 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
     case ABOUT_INDEX:
       draw_menu(ctx, cell_layer, "About", info_icon);
       break;
-    #ifdef PBL_PLATFORM_BASALT
+    #if defined(PBL_COLOR)
     case DECRYPT_INDEX:
       draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
       break;
@@ -126,21 +139,33 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
   }
 }
 
-void about_window_load() {
+void about_window_load(Window *window) {
   about_text_ptr = malloc(CHAR_NUM*sizeof(char));
   ResHandle rh = resource_get_handle(RESOURCE_ID_PEBB_GAMES_ABOUT);
   resource_load(rh, (uint8_t *)about_text_ptr, CHAR_NUM*sizeof(char));
-  s_about_scroll_layer = scroll_layer_create(GRect(0,0,144,168));
-  s_about_text_layer = text_layer_create(GRect(0,0,144,HEIGHT));
+
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);    
+  s_about_scroll_layer = scroll_layer_create(bounds);
+
+  GRect text_bounds = GRect(bounds.origin.x, bounds.origin.y, bounds.size.w, HEIGHT);
+  s_about_text_layer = text_layer_create(text_bounds);
+  
   scroll_layer_add_child(s_about_scroll_layer, text_layer_get_layer(s_about_text_layer));
   scroll_layer_set_content_size(s_about_scroll_layer, GSize(100,HEIGHT));
   scroll_layer_set_click_config_onto_window(s_about_scroll_layer, s_about_window);
   text_layer_set_text(s_about_text_layer, about_text_ptr);
   text_layer_set_text_alignment(s_about_text_layer, GTextAlignmentCenter);
   layer_add_child(window_get_root_layer(s_about_window), scroll_layer_get_layer(s_about_scroll_layer));
+
+  #if defined(PBL_ROUND)
+    text_layer_set_overflow_mode(s_about_text_layer, GTextOverflowModeWordWrap);
+    text_layer_enable_screen_text_flow_and_paging(s_about_text_layer, 15);
+    scroll_layer_set_paging(s_about_scroll_layer, true);
+  #endif
 }
 
-void about_window_unload() {
+void about_window_unload(Window *window) {
   free(about_text_ptr);
   text_layer_destroy(s_about_text_layer);
   scroll_layer_destroy(s_about_scroll_layer);
@@ -168,7 +193,7 @@ void load_bitmaps() {
   info_icon = gbitmap_create_with_resource(RESOURCE_ID_INFO_ICON);
   blackjack_icon = gbitmap_create_with_resource(RESOURCE_ID_BLACKJACK_ICON);
   two048_icon = gbitmap_create_with_resource(RESOURCE_ID_TWO048_ICON);
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     decrypt_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
     solitaire_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
   #endif
@@ -181,7 +206,7 @@ static void destroy_bitmaps() {
   gbitmap_destroy(tennis_icon);
   gbitmap_destroy(blackjack_icon);
   gbitmap_destroy(two048_icon);
-  #ifdef PBL_PLATFORM_BASALT
+  #if defined(PBL_COLOR)
     gbitmap_destroy(decrypt_icon);
     gbitmap_destroy(solitaire_icon);
   #endif
@@ -207,7 +232,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
     case ABOUT_INDEX:
       about_chosen();
       break;
-    #ifdef PBL_PLATFORM_BASALT
+    #if defined(PBL_COLOR)
     case DECRYPT_INDEX:
       decrypt_init();
       break;
@@ -225,10 +250,14 @@ static void menu_window_load(Window *window) {
   GRect bounds = layer_get_frame(window_layer);
 
   s_games_menu = menu_layer_create(bounds);
+  #if defined(PBL_ROUND)
+    menu_layer_set_center_focused((MenuLayer *)s_games_menu, true);
+  #endif
   menu_layer_set_callbacks(s_games_menu, NULL, (MenuLayerCallbacks){
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_header_height = menu_get_header_height_callback,
+    .get_cell_height = menu_get_cell_height_callback,
     .draw_header = menu_draw_header_callback,
     .draw_row = menu_draw_row_callback,
     .select_click = menu_select_callback,
