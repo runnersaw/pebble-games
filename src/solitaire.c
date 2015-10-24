@@ -22,6 +22,8 @@
     #define CARD_SHOW_GAP 25
     #define NOT_SHOWN_GAP 2
     #define HIDDEN_GAP 4
+    #define SUIT_SIZE 14
+    #define SUIT_MARGIN 2
   #else
     #define WIDTH 144
     #define HEIGHT 168
@@ -31,6 +33,8 @@
     #define CARD_SHOW_GAP 30
     #define NOT_SHOWN_GAP 3
     #define HIDDEN_GAP 5
+    #define SUIT_SIZE 14
+    #define SUIT_MARGIN 3
   #endif
     
   static Window *s_solitaire_window;
@@ -436,7 +440,7 @@
     } else {
       bmp_to_draw = spades_icon;
     }
-    graphics_draw_bitmap_in_rect(ctx, bmp_to_draw, GRect(x+3,y+CARD_HEIGHT/2+3, 14, 14));
+    graphics_draw_bitmap_in_rect(ctx, bmp_to_draw, GRect(x+SUIT_MARGIN,y+CARD_HEIGHT/2+SUIT_MARGIN, SUIT_SIZE, SUIT_SIZE));
     return;
   }
 
