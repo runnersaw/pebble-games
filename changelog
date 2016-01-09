@@ -1,0 +1,2 @@
+5.1
+Fixed Solitaire bug. A user could add a card in the middle of the pile to the foundation at the top, which made the game unwinnable. 

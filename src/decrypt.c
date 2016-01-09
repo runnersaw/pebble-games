@@ -156,8 +156,6 @@ static void draw_decrypt(Layer *layer, GContext *ctx) {
 
   graphics_context_set_fill_color(ctx, GColorRajah);
   graphics_fill_rect(ctx, GRect(LEFT_MARGIN, TOP_MARGIN, WIDTH, HEIGHT), 0, GCornerNone);
-  graphics_context_set_fill_color(ctx, GColorBlack);
-  graphics_fill_rect(ctx, GRect(LEFT_MARGIN+BORDER, TOP_MARGIN+BORDER, WIDTH-2*BORDER, COVER_HEIGHT), 0, GCornerNone);
   short m, n;
   for (m=0;m<no_guesses;m++) {
     short right_right = right_color_right_place(target, (guesses+NUM_GUESSES*m));
@@ -178,7 +176,6 @@ static void draw_decrypt(Layer *layer, GContext *ctx) {
   for (m=0;m<current_guess_no_chosen;m++) {
     set_fill_color(ctx, *(current_guess+m));
     graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH/(NUM_GUESSES+1)*(m+1), TOP_MARGIN+HEIGHT-(HEIGHT-COVER_HEIGHT-BORDER)/(MAX_GUESSES+2)), RADIUS);
-
   }
   for (m=0;m<NUM_COLORS;m++) {
     short radius = 5;
@@ -188,13 +185,28 @@ static void draw_decrypt(Layer *layer, GContext *ctx) {
     set_fill_color(ctx, m);
     graphics_fill_circle(ctx, GPoint((size.w-COLORS_WIDTH)/2 + COLORS_WIDTH/(NUM_COLORS+1)*(m+1), size.h-COLORS_MARGIN), radius);
   }
-  if (win==1) {
-    graphics_context_set_text_color(ctx, GColorBlack);
-    graphics_draw_text(ctx, "WIN", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,(size.h-WIN_TEXT_HEIGHT)/2,size.w,WIN_TEXT_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
-  }
-  if (lose==1) {
-    graphics_context_set_text_color(ctx, GColorBlack);
-    graphics_draw_text(ctx, "LOSE", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,(size.h-WIN_TEXT_HEIGHT)/2,size.w,WIN_TEXT_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
+  if (win==0 && lose==0) { 
+    // draw the opponent's as covered
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_fill_rect(ctx, GRect(LEFT_MARGIN+BORDER, TOP_MARGIN+BORDER, WIDTH-2*BORDER, COVER_HEIGHT), 0, GCornerNone);
+  } else {
+    // draw the opponents sequence
+    for (short m=0;m<NUM_GUESSES;m++) {
+      set_fill_color(ctx, *(target+m));
+      graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH/(NUM_GUESSES+1)*(m+1), TOP_MARGIN+BORDER+COVER_HEIGHT/2), RADIUS);
+    }
+    for (m=0;m<NUM_GUESSES;m++) {
+      *(target+m) = rand()%NUM_COLORS;
+    }
+
+    if (win==1) {
+      graphics_context_set_text_color(ctx, GColorBlack);
+      graphics_draw_text(ctx, "WIN", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,(size.h-WIN_TEXT_HEIGHT)/2,size.w,WIN_TEXT_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
+    }
+    if (lose==1) {
+      graphics_context_set_text_color(ctx, GColorBlack);
+      graphics_draw_text(ctx, "LOSE", fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0,(size.h-WIN_TEXT_HEIGHT)/2,size.w,WIN_TEXT_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL); 
+    }
   }
 }
 
