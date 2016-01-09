@@ -132,7 +132,7 @@
     } while (can_move[selected_to_row]==0 && count < 11); // count just in case
   }
 
-  static void findPlaceForCard(short card) {
+  static void findPlaceForCard(short card, short is_last_card) {
     no_matches_found = 0;
 
     short value = card/4;
@@ -185,7 +185,7 @@
     for (i=7; i<11; i++) {
       short is_suit_right = (suit+7 == i);
       short is_ace = ((value == 0) && (pile_number[i] == 0));
-      if (is_suit_right) {
+      if (is_suit_right && is_last_card) {
         if (is_ace) {
           can_move[i] = 1;
           moveable = 1;
@@ -355,7 +355,11 @@
         status = SELECTING_CARD;
       }
     } else if (status == SELECTING_CARD) {
-      findPlaceForCard(deck.cards[selected_card]);
+      short is_last_card = 0;
+      if (get_card_number(selected_row, 0) == selected_card) {
+        is_last_card = 1;
+      }
+      findPlaceForCard(deck.cards[selected_card], is_last_card);
       if (no_matches_found == 0) {
         findNextLocation();
         status = SELECTING_LOC;
