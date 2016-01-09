@@ -30,6 +30,7 @@
 #define BORDER 4
 #define COVER_HEIGHT 10
 #define RADIUS 3
+#define LARGE_RADIUS 4
 #define INDICATOR_RADIUS 2
 #define WIN_TEXT_HEIGHT 30
 #define COLORS_WIDTH 144
@@ -193,7 +194,7 @@ static void draw_decrypt(Layer *layer, GContext *ctx) {
     // draw the opponents sequence
     for (short m=0;m<NUM_GUESSES;m++) {
       set_fill_color(ctx, *(target+m));
-      graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH/(NUM_GUESSES+1)*(m+1), TOP_MARGIN+BORDER+COVER_HEIGHT/2), RADIUS);
+      graphics_fill_circle(ctx, GPoint(LEFT_MARGIN+WIDTH/(NUM_GUESSES+1)*(m+1), TOP_MARGIN+BORDER+COVER_HEIGHT/2), LARGE_RADIUS);
     }
     for (m=0;m<NUM_GUESSES;m++) {
       *(target+m) = rand()%NUM_COLORS;
