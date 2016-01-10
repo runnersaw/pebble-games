@@ -1,5 +1,9 @@
 Select the column of the piece you want to move.
+
 Select the piece you want to move.
+
 Select the position you want to move to.
+
 If you push the back button, it will go back to the previous step. If you push BACK while choosing the column, the game will exit and save your game. 
+
 Hold the SELECT button to reset the game. 

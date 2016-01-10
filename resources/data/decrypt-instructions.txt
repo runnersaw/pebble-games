@@ -1,5 +1,9 @@
 Use UP/DOWN and SELECT to choose a color.
+
 Make a sequence of colors, trying to guess the computer's code. 
+
 The white dots mean you got a color right, in the right spot.
+
 The black dots mean you got a color right, in the wrong spot. 
+
 Use BACK to undo guesses and to exit.

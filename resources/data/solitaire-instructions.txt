@@ -1,0 +1,5 @@
+Use the UP and DOWN buttons and SELECT to select which cards you want to move and where to move them.
+
+Press BACK to exit the game. 
+
+Hold the SELECT button to reset the game. 

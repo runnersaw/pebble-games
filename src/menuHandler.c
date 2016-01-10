@@ -2,6 +2,7 @@
 #include "pebble-games.h"
 #include "menuHandler.h"
 #include "instructionHandler.h"
+#include "textHandler.h"
 
 #define NUM_MENU_SECTIONS 1
 
@@ -117,53 +118,6 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
   }
 }
 
-static void about_window_load(Window *window) {
-  about_text_ptr = malloc(CHAR_NUM*sizeof(char));
-  ResHandle rh = resource_get_handle(RESOURCE_ID_PEBB_GAMES_ABOUT);
-  resource_load(rh, (uint8_t *)about_text_ptr, CHAR_NUM*sizeof(char));
-
-  Layer *window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_frame(window_layer);    
-  s_about_scroll_layer = scroll_layer_create(bounds);
-
-  GRect text_bounds = GRect(bounds.origin.x, bounds.origin.y, bounds.size.w, HEIGHT);
-  s_about_text_layer = text_layer_create(text_bounds);
-  
-  scroll_layer_add_child(s_about_scroll_layer, text_layer_get_layer(s_about_text_layer));
-  scroll_layer_set_content_size(s_about_scroll_layer, GSize(100,HEIGHT));
-  scroll_layer_set_click_config_onto_window(s_about_scroll_layer, s_about_window);
-  text_layer_set_text(s_about_text_layer, about_text_ptr);
-  text_layer_set_text_alignment(s_about_text_layer, GTextAlignmentCenter);
-  layer_add_child(window_get_root_layer(s_about_window), scroll_layer_get_layer(s_about_scroll_layer));
-
-  #if defined(PBL_ROUND)
-    text_layer_set_overflow_mode(s_about_text_layer, GTextOverflowModeWordWrap);
-    text_layer_enable_screen_text_flow_and_paging(s_about_text_layer, 15);
-    scroll_layer_set_paging(s_about_scroll_layer, true);
-  #endif
-}
-
-void about_window_unload(Window *window) {
-  free(about_text_ptr);
-  text_layer_destroy(s_about_text_layer);
-  scroll_layer_destroy(s_about_scroll_layer);
-  window_destroy(s_about_window);
-}
-
-static void about_chosen() {
-  // Create main Window element and assign to pointer
-  s_about_window = window_create();
-
-  // Set handlers to manage the elements inside the Window
-  window_set_window_handlers(s_about_window, (WindowHandlers) {
-    .load = about_window_load,
-    .unload = about_window_unload
-  });
-
-  // Show the Window on the watch, with animated=true
-  window_stack_push(s_about_window, true);
-}
-
 static void load_bitmaps() {
   tennis_icon = gbitmap_create_with_resource(RESOURCE_ID_TENNIS_ICON);
   food_icon = gbitmap_create_with_resource(RESOURCE_ID_FOOD_ICON);
@@ -193,7 +147,7 @@ static void destroy_bitmaps() {
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
   switch (cell_index->row) {
     case ABOUT:
-      about_chosen();
+      text_init(ABOUT);
       break;
     default:
       instruction_init(cell_index->row);
