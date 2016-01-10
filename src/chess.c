@@ -1,3 +1,4 @@
+#if defined(PBL_COLOR)
 #include <pebble.h>
 #include "pebble-games.h"
 #include "chess.h"
@@ -1336,3 +1337,4 @@ void chess_init() {
   // Show the Window on the watch, with animated=true
   window_stack_push(s_chess_window, true);
 }
+#endif

@@ -10,8 +10,8 @@
   #define NUM_MENU_ICONS 8
   #define NUM_MENU_ITEMS 8
 #else
-  #define NUM_MENU_ICONS 6
-  #define NUM_MENU_ITEMS 6
+  #define NUM_MENU_ICONS 5
+  #define NUM_MENU_ITEMS 5
 #endif
 #define CHAR_NUM 350
 
@@ -32,12 +32,12 @@ static MenuLayer *s_games_menu;
 static char *about_text_ptr;
 
 static GBitmap *info_icon;
-static GBitmap *chess_icon;
 static GBitmap *tennis_icon;
 static GBitmap *food_icon;
 static GBitmap *blackjack_icon;
 static GBitmap *two048_icon;
 #if defined(PBL_COLOR)
+  static GBitmap *chess_icon;
   static GBitmap *solitaire_icon;
   static GBitmap *decrypt_icon;
   static GBitmap *instruction_icon;
@@ -89,9 +89,6 @@ static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *b
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
   switch (cell_index->row) {
-    case CHESS:
-      draw_menu(ctx, cell_layer, "Chess", chess_icon);
-      break;
     case BLACKJACK:
       draw_menu(ctx, cell_layer, "Blackjack", blackjack_icon);
       break;
@@ -108,6 +105,9 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
       draw_menu(ctx, cell_layer, "About", info_icon);
       break;
     #if defined(PBL_COLOR)
+    case CHESS:
+      draw_menu(ctx, cell_layer, "Chess", chess_icon);
+      break;
     case DECRYPT:
       draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
       break;
@@ -121,11 +121,11 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
 static void load_bitmaps() {
   tennis_icon = gbitmap_create_with_resource(RESOURCE_ID_TENNIS_ICON);
   food_icon = gbitmap_create_with_resource(RESOURCE_ID_FOOD_ICON);
-  chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
   info_icon = gbitmap_create_with_resource(RESOURCE_ID_INFO_ICON);
   blackjack_icon = gbitmap_create_with_resource(RESOURCE_ID_BLACKJACK_ICON);
   two048_icon = gbitmap_create_with_resource(RESOURCE_ID_TWO048_ICON);
   #if defined(PBL_COLOR)
+    chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
     decrypt_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
     solitaire_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
   #endif
@@ -133,12 +133,12 @@ static void load_bitmaps() {
 
 static void destroy_bitmaps() {
   gbitmap_destroy(info_icon);
-  gbitmap_destroy(chess_icon);
   gbitmap_destroy(food_icon);
   gbitmap_destroy(tennis_icon);
   gbitmap_destroy(blackjack_icon);
   gbitmap_destroy(two048_icon);
   #if defined(PBL_COLOR)
+    gbitmap_destroy(chess_icon);
     gbitmap_destroy(decrypt_icon);
     gbitmap_destroy(solitaire_icon);
   #endif

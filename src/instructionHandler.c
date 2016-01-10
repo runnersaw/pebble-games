@@ -4,10 +4,10 @@
 #include "textHandler.h"
 #include "food.h"
 #include "tennis.h"
-#include "chess.h"
 #include "blackjack.h"
 #include "2048.h"
 #if defined(PBL_COLOR)
+  #include "chess.h"
   #include "decrypt.h"
   #include "cards.h"
   #include "solitaire.h"
@@ -82,9 +82,6 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
   if (cell_index->row == GAME_INDEX) {
     switch (instruction_type) {
-      case CHESS:
-        chess_init();
-        break;
       case BLACKJACK:
         blackjack_init();
         break;
@@ -98,6 +95,9 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
         tennis_init();
         break;
       #if defined(PBL_COLOR)
+      case CHESS:
+        chess_init();
+        break;
       case DECRYPT:
         decrypt_init();
         break;
@@ -115,9 +115,6 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
 
 static void load_bitmaps() {
   switch (instruction_type) {
-    case CHESS:
-      game_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
-      break;
     case BLACKJACK:
       game_icon = gbitmap_create_with_resource(RESOURCE_ID_BLACKJACK_ICON);
       break;
@@ -131,6 +128,9 @@ static void load_bitmaps() {
       game_icon = gbitmap_create_with_resource(RESOURCE_ID_TENNIS_ICON);
       break;
     #if defined(PBL_COLOR)
+    case CHESS:
+      game_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
+      break;
     case DECRYPT:
       game_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
       break;
@@ -156,7 +156,7 @@ static void instruction_menu_window_load(Window *window) {
   #if defined(PBL_ROUND)
     menu_layer_set_center_focused((MenuLayer *)s_instruction_menu, true);
   #endif
-    
+
   menu_layer_set_callbacks(s_instruction_menu, NULL, (MenuLayerCallbacks){
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
