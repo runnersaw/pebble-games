@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "chess.h"
 
 #if defined(PBL_ROUND)

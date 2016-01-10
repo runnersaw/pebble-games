@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "blackjack.h"
 #include "cards.h"
   

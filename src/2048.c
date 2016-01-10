@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "2048.h"
 
 #if defined(PBL_ROUND)

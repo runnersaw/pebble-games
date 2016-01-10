@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "tennis.h"
 
 #define HEIGHT 100

@@ -1,32 +1,9 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "menuHandler.h"
-#include "food.h"
-#include "tennis.h"
-#include "chess.h"
-#include "blackjack.h"
-#include "2048.h"
-#if defined(PBL_COLOR)
-  #include "decrypt.h"
-  #include "cards.h"
-  #include "solitaire.h"
-#endif
+#include "instructionHandler.h"
 
 #define NUM_MENU_SECTIONS 1
-
-#define CHESS_INDEX 0
-#define BLACKJACK_INDEX 1
-#define TWO048_INDEX 2
-#if defined(PBL_COLOR)
-  #define DECRYPT_INDEX 3
-  #define SOLITAIRE_INDEX 4
-  #define FOOD_INDEX 5
-  #define TENNIS_INDEX 6
-  #define ABOUT_INDEX 7
-#else
-  #define FOOD_INDEX 3
-  #define TENNIS_INDEX 4
-  #define ABOUT_INDEX 5
-#endif
 
 #if defined(PBL_COLOR)
   #define NUM_MENU_ICONS 8
@@ -62,6 +39,7 @@ static GBitmap *two048_icon;
 #if defined(PBL_COLOR)
   static GBitmap *solitaire_icon;
   static GBitmap *decrypt_icon;
+  static GBitmap *instruction_icon;
 #endif
 
 // A simple menu layer can have multiple sections
@@ -110,36 +88,36 @@ static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *b
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
   switch (cell_index->row) {
-    case CHESS_INDEX:
+    case CHESS:
       draw_menu(ctx, cell_layer, "Chess", chess_icon);
       break;
-    case BLACKJACK_INDEX:
+    case BLACKJACK:
       draw_menu(ctx, cell_layer, "Blackjack", blackjack_icon);
       break;
-    case TWO048_INDEX:
+    case TWO048:
       draw_menu(ctx, cell_layer, "2048", two048_icon);
       break;
-    case FOOD_INDEX:
+    case FOOD:
       draw_menu(ctx, cell_layer, "FOOD!", food_icon);
       break;
-    case TENNIS_INDEX:
+    case TENNIS:
       draw_menu(ctx, cell_layer, "Tennis", tennis_icon);
       break;
-    case ABOUT_INDEX:
+    case ABOUT:
       draw_menu(ctx, cell_layer, "About", info_icon);
       break;
     #if defined(PBL_COLOR)
-    case DECRYPT_INDEX:
+    case DECRYPT:
       draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
       break;
-    case SOLITAIRE_INDEX:
+    case SOLITAIRE:
       draw_menu(ctx, cell_layer, "Solitaire", solitaire_icon);
       break;
     #endif
   }
 }
 
-void about_window_load(Window *window) {
+static void about_window_load(Window *window) {
   about_text_ptr = malloc(CHAR_NUM*sizeof(char));
   ResHandle rh = resource_get_handle(RESOURCE_ID_PEBB_GAMES_ABOUT);
   resource_load(rh, (uint8_t *)about_text_ptr, CHAR_NUM*sizeof(char));
@@ -172,7 +150,7 @@ void about_window_unload(Window *window) {
   window_destroy(s_about_window);
 }
 
-void about_chosen() {
+static void about_chosen() {
   // Create main Window element and assign to pointer
   s_about_window = window_create();
 
@@ -186,7 +164,7 @@ void about_chosen() {
   window_stack_push(s_about_window, true);
 }
 
-void load_bitmaps() {
+static void load_bitmaps() {
   tennis_icon = gbitmap_create_with_resource(RESOURCE_ID_TENNIS_ICON);
   food_icon = gbitmap_create_with_resource(RESOURCE_ID_FOOD_ICON);
   chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
@@ -214,32 +192,12 @@ static void destroy_bitmaps() {
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
   switch (cell_index->row) {
-    case CHESS_INDEX:
-      chess_init();
-      break;
-    case BLACKJACK_INDEX:
-      blackjack_init();
-      break;
-    case TWO048_INDEX:
-      two048_init();
-      break;
-    case FOOD_INDEX:
-      food_init();
-      break;
-    case TENNIS_INDEX:
-      tennis_init();
-      break;
-    case ABOUT_INDEX:
+    case ABOUT:
       about_chosen();
       break;
-    #if defined(PBL_COLOR)
-    case DECRYPT_INDEX:
-      decrypt_init();
+    default:
+      instruction_init(cell_index->row);
       break;
-    case SOLITAIRE_INDEX:
-      solitaire_init();
-      break;
-    #endif
   }
 }
 

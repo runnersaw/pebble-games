@@ -1,5 +1,6 @@
 #if defined(PBL_COLOR)
   #include <pebble.h>
+  #include "pebble-games.h"
   #include "cards.h"
   
   Deck create_deck() {

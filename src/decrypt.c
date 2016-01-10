@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "decrypt.h"
 
 #if defined(PBL_COLOR)
