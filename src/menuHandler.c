@@ -10,8 +10,8 @@
   #define NUM_MENU_ICONS 8
   #define NUM_MENU_ITEMS 8
 #else
-  #define NUM_MENU_ICONS 5
-  #define NUM_MENU_ITEMS 5
+  #define NUM_MENU_ICONS 6
+  #define NUM_MENU_ITEMS 6
 #endif
 #define CHAR_NUM 350
 
@@ -36,11 +36,10 @@ static GBitmap *tennis_icon;
 static GBitmap *food_icon;
 static GBitmap *blackjack_icon;
 static GBitmap *two048_icon;
+static GBitmap *solitaire_icon;
 #if defined(PBL_COLOR)
   static GBitmap *chess_icon;
-  static GBitmap *solitaire_icon;
   static GBitmap *decrypt_icon;
-  static GBitmap *instruction_icon;
 #endif
 
 // A simple menu layer can have multiple sections
@@ -104,15 +103,15 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
     case ABOUT:
       draw_menu(ctx, cell_layer, "About", info_icon);
       break;
+    case SOLITAIRE:
+      draw_menu(ctx, cell_layer, "Solitaire", solitaire_icon);
+      break;
     #if defined(PBL_COLOR)
     case CHESS:
       draw_menu(ctx, cell_layer, "Chess", chess_icon);
       break;
     case DECRYPT:
       draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
-      break;
-    case SOLITAIRE:
-      draw_menu(ctx, cell_layer, "Solitaire", solitaire_icon);
       break;
     #endif
   }
@@ -124,10 +123,10 @@ static void load_bitmaps() {
   info_icon = gbitmap_create_with_resource(RESOURCE_ID_INFO_ICON);
   blackjack_icon = gbitmap_create_with_resource(RESOURCE_ID_BLACKJACK_ICON);
   two048_icon = gbitmap_create_with_resource(RESOURCE_ID_TWO048_ICON);
+  solitaire_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
   #if defined(PBL_COLOR)
     chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
     decrypt_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
-    solitaire_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
   #endif
 }
 
@@ -137,10 +136,10 @@ static void destroy_bitmaps() {
   gbitmap_destroy(tennis_icon);
   gbitmap_destroy(blackjack_icon);
   gbitmap_destroy(two048_icon);
+  gbitmap_destroy(solitaire_icon);
   #if defined(PBL_COLOR)
     gbitmap_destroy(chess_icon);
     gbitmap_destroy(decrypt_icon);
-    gbitmap_destroy(solitaire_icon);
   #endif
 }
 

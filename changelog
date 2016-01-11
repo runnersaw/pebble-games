@@ -6,7 +6,6 @@ Added a difficulty setting for chess.
 Fixed numerous bugs in chess. 
 
 TODO:
-Fix instruction sizes on Aplite and Chalk. 
 Add setting to tennis for difficulty. 
 Add solitaire to Aplite.
 Create standalone chess app for Aplite. 

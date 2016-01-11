@@ -10,11 +10,12 @@
   #define ABOUT 7
   #define INSTRUCTION 8
 #else
-  #define BLACKJACK 0
-  #define TWO048 1
-  #define FOOD 2
-  #define TENNIS 3
-  #define ABOUT 4
+  #define SOLITAIRE 0
+  #define BLACKJACK 1
+  #define TWO048 2
+  #define FOOD 3
+  #define TENNIS 4
+  #define ABOUT 5
 #endif
 
 // define has settings, uncomment to give settings

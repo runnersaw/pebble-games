@@ -4,19 +4,27 @@
 
 #if defined(PBL_ROUND)
   #define SCROLL_WIDTH 100
+  #define TWO048_HEIGHT 2*180
+  #define FOOD_HEIGHT 2*180
+  #define TENNIS_HEIGHT 1*180
+  #define BLACKJACK_HEIGHT 2*180
+  #define CHESS_HEIGHT 3*180
+  #define DECRYPT_HEIGHT 3*180
+  #define SOLITAIRE_HEIGHT 2*180
 #else
   #define SCROLL_WIDTH 100
+  #define TWO048_HEIGHT 168
+  #define FOOD_HEIGHT 168
+  #define TENNIS_HEIGHT 100
+  #define BLACKJACK_HEIGHT 150
+  #if defined(PBL_COLOR)
+    #define CHESS_HEIGHT 300
+    #define DECRYPT_HEIGHT 260
+    #define SOLITAIRE_HEIGHT 168
+  #endif
 #endif
 
-#define TWO048_HEIGHT 168
-#define FOOD_HEIGHT 168
-#define TENNIS_HEIGHT 100
-#define BLACKJACK_HEIGHT 150
-#if defined(PBL_COLOR)
-  #define CHESS_HEIGHT 300
-  #define DECRYPT_HEIGHT 260
-  #define SOLITAIRE_HEIGHT 168
-#endif
+
 
 #if defined(PBL_ROUND)
   #define ABOUT_HEIGHT 500
@@ -32,6 +40,12 @@ static Window *s_instruction_window;
 
 static char *instruction_text_ptr;
 static short instruction_type;
+
+static void reset_text() {
+  for (short i=0;i<MAX_CHARS;i++) {
+    *(instruction_text_ptr + i) = '\0';
+  }
+}
 
 static short get_instruction_size(short game) {
   return MAX_CHARS;
@@ -109,6 +123,7 @@ void instruction_window_load(Window *window) {
 
   // allocate text holder and load resource
   instruction_text_ptr = malloc(size*sizeof(char));
+  reset_text();
   resource_load(rh, (uint8_t *)instruction_text_ptr, size*sizeof(char));
 
   // get bounds of the window and set bounds of text

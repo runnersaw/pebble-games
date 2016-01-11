@@ -7,11 +7,11 @@
 #include "tennis.h"
 #include "blackjack.h"
 #include "2048.h"
+#include "cards.h"
+#include "solitaire.h"
 #if defined(PBL_COLOR)
   #include "chess.h"
   #include "decrypt.h"
-  #include "cards.h"
-  #include "solitaire.h"
 #endif
 
 #define NUM_INSTRUCTION_SECTIONS 1
@@ -95,15 +95,15 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
       case TENNIS:
         tennis_init();
         break;
+      case SOLITAIRE:
+        solitaire_init();
+        break;
       #if defined(PBL_COLOR)
       case CHESS:
         chess_init();
         break;
       case DECRYPT:
         decrypt_init();
-        break;
-      case SOLITAIRE:
-        solitaire_init();
         break;
       #endif
     }
@@ -128,15 +128,15 @@ static void load_bitmaps() {
     case TENNIS:
       game_icon = gbitmap_create_with_resource(RESOURCE_ID_TENNIS_ICON);
       break;
+    case SOLITAIRE:
+      game_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
+      break;
     #if defined(PBL_COLOR)
     case CHESS:
       game_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
       break;
     case DECRYPT:
       game_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
-      break;
-    case SOLITAIRE:
-      game_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
       break;
     #endif
   }
