@@ -2,3 +2,16 @@
 Fixed Solitaire bug. A user could add a card in the middle of the pile to the foundation at the top, which made the game unwinnable. 
 Shows the Decrypt sequence after a win or a loss. 
 Added instructions for each game. 
+Added a difficulty setting for chess. 
+Fixed numerous bugs in chess. 
+
+TODO:
+Fix instruction sizes on Aplite and Chalk. 
+Add setting to tennis for difficulty. 
+Add solitaire to Aplite.
+Create standalone chess app for Aplite. 
+1 or 3 card drawing in solitaire. 
+Number of colors/guesses in Decrypt. 
+Rewrite #ifdefs to use individual games so they can be easily switched
+Redo menu icons for Aplite. 
+Write chess win scenarios. 
