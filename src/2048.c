@@ -11,8 +11,6 @@
 #define UP 1
 #define LEFT 2
 #define DOWN 3
-  
-#define TWO048_BOARD_STATE_KEY 34
 
 static Window *s_2048_window;
 static Layer *s_2048_layer;
@@ -303,6 +301,7 @@ static void window_unload(Window *window) {
   free(two048_game_state);
   layer_destroy(s_2048_layer);
   window_destroy(s_2048_window);
+  s_2048_window = NULL;
 }
 
 void two048_init(void) {

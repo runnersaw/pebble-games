@@ -276,6 +276,7 @@ static void decrypt_unload(Window *window) {
   free(current_guess);
   
   window_destroy(s_decrypt_window);
+  s_decrypt_window = NULL;
 }
 
 static void click_config_provider(void *context) {

@@ -1,4 +1,3 @@
 #pragma once
 
-void settings_init();
-void settings_deinit();
+void settings_init(short game);

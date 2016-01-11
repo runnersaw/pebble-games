@@ -26,8 +26,6 @@
   
 #define BOX_WIDTH FRAME_WIDTH/GRID_SIZE
   
-#define PLAYER_LOCATION_KEY 24123
-  
 static Window *s_food_window;
 static Layer *s_food_layer;
 
@@ -256,6 +254,7 @@ static void food_window_unload(Window *window) {
   free(y_pos);
   layer_destroy(s_food_layer);
   window_destroy(s_food_window);
+  s_food_window = NULL;
 }
 
 void food_init() {  

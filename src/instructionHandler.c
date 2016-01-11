@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "pebble-games.h"
 #include "instructionHandler.h"
+#include "settingsHandler.h"
 #include "textHandler.h"
 #include "food.h"
 #include "tennis.h"
@@ -109,7 +110,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
   } else if (cell_index->row == INSTRUCTION_INDEX) {
     text_init(instruction_type);
   } else if (cell_index->row == SETTINGS_INDEX) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "settings selected %d", instruction_type);
+    settings_init(instruction_type);
   }
 }
 
@@ -175,9 +176,55 @@ static void instruction_menu_window_load(Window *window) {
 static void instruction_menu_window_unload(Window *window) {
   destroy_bitmaps();
   menu_layer_destroy(s_instruction_menu);
+  window_destroy(window);
+  s_instruction_menu_window = NULL;
 }
 
 static void setHasSettings(short game) {
+  #ifdef CHESS_HAS_SETTINGS
+  if (game == CHESS) {
+    has_settings = 1;
+    return;
+  }
+  #endif
+  #ifdef BLACKJACK_HAS_SETTINGS
+  if (game == BLACKJACK) {
+    has_settings = 1;
+    return;
+  }
+  #endif
+  #ifdef DECRYPT_HAS_SETTINGS
+  if (game == DECRYPT) {
+    has_settings = 1;
+    return;
+  }
+  #endif
+  #ifdef TWO048_HAS_SETTINGS
+  if (game == TWO048) {
+    has_settings = 1;
+    return;
+  }
+  #endif
+  #ifdef FOOD_HAS_SETTINGS
+  if (game == FOOD) {
+    has_settings = 1;
+    return;
+  }
+  #endif
+  #ifdef TENNIS_HAS_SETTINGS
+  if (game == TENNIS) {
+    has_settings = 1;
+    return;
+  }
+  #endif
+  #ifdef SOLITAIRE_HAS_SETTINGS
+  if (game == SOLITAIRE) {
+    has_settings = 1;
+    return;
+  }
+  #endif
+
+
   has_settings = 0;
 }
 
@@ -195,9 +242,4 @@ void instruction_init(short game) {
 
   // Show the Window on the watch, with animated=true
   window_stack_push(s_instruction_menu_window, true);
-}
-
-void instruction_deinit() {
-    // Destroy Window
-    window_destroy(s_instruction_menu_window);
 }

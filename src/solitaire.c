@@ -10,10 +10,6 @@
 
   #define ARROW_WIDTH 12
 
-  #define CARDS_KEY 23874
-  #define PILE_KEY 3465
-  #define SHOWN_KEY 875
-
   #if defined(PBL_ROUND)
     #define WIDTH 132
     #define HEIGHT 132
@@ -558,22 +554,22 @@
 
   static void save_game() {
     if (win == 0) {
-      persist_write_data(CARDS_KEY, deck.cards, sizeof(deck.cards));
-      persist_write_data(PILE_KEY, pile_number, sizeof(pile_number));
-      persist_write_data(SHOWN_KEY, num_shown, sizeof(num_shown));
+      persist_write_data(SOLITAIRE_CARDS_KEY, deck.cards, sizeof(deck.cards));
+      persist_write_data(SOLITAIRE_PILE_KEY, pile_number, sizeof(pile_number));
+      persist_write_data(SOLITAIRE_SHOWN_KEY, num_shown, sizeof(num_shown));
     } else {
-      persist_delete(CARDS_KEY);
-      persist_delete(PILE_KEY);
-      persist_delete(SHOWN_KEY);
+      persist_delete(SOLITAIRE_CARDS_KEY);
+      persist_delete(SOLITAIRE_PILE_KEY);
+      persist_delete(SOLITAIRE_SHOWN_KEY);
     }
   }
 
   static void load_game() {
     short c[52];
-    if (persist_exists(CARDS_KEY) && persist_exists(SHOWN_KEY) && persist_exists(PILE_KEY)) {
-      persist_read_data(CARDS_KEY, c, sizeof(c));
-      persist_read_data(PILE_KEY, pile_number, sizeof(pile_number));
-      persist_read_data(SHOWN_KEY, num_shown, sizeof(num_shown));
+    if (persist_exists(SOLITAIRE_CARDS_KEY) && persist_exists(SOLITAIRE_SHOWN_KEY) && persist_exists(SOLITAIRE_PILE_KEY)) {
+      persist_read_data(SOLITAIRE_CARDS_KEY, c, sizeof(c));
+      persist_read_data(SOLITAIRE_PILE_KEY, pile_number, sizeof(pile_number));
+      persist_read_data(SOLITAIRE_SHOWN_KEY, num_shown, sizeof(num_shown));
       for (short i=0;i<13;i++) {
         APP_LOG(APP_LOG_LEVEL_INFO, "pile_number[%d] = %d", i, pile_number[i]);
       }
@@ -620,6 +616,7 @@
     destroy_bitmaps();
     layer_destroy(s_solitaire_layer);
     window_destroy(s_solitaire_window);
+    s_solitaire_window = NULL;
   }
 
   void solitaire_init() {

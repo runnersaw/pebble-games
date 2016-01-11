@@ -35,12 +35,8 @@
 #define WHITE_PAWN 6
   
 #define MAXIMUM_MOVES 80
-#define SEARCH_DEPTH 2
-  
-#define BOARD_STATE_KEY 1423
-#define CASTLE_RIGHT_KEY 9357
-#define MOVE_NO_KEY 9358
-#define CASTLE_LEFT_KEY 7347
+#define EASY_SEARCH_DEPTH 1
+#define HARD_SEARCH_DEPTH 2
   
 static Window *s_chess_window;
 static Layer *s_chess_layer;
@@ -74,6 +70,10 @@ static Layer *s_chess_layer;
   static GBitmap *s_black_pawn_white;
   static GBitmap *s_down_arrow;
 #endif
+
+static short difficulty = CHESS_EASY; // default
+static short search_depth = EASY_SEARCH_DEPTH;
+static short current_search_depth = EASY_SEARCH_DEPTH;
 
 static short team_won = 0; // will change to +1 for white, -1 for black
 
@@ -813,7 +813,7 @@ short find_move(short state[8][8], short team, short depth) {
         }
       }
     } 
-    if (depth==SEARCH_DEPTH) {
+    if (depth==current_search_depth) {
       move(board_state,best_move[0],best_move[1],best_move[2],best_move[3]);
       turn=-turn;
       move_count++;
@@ -849,7 +849,9 @@ static void change_turn() {
       white_win();
       return;
     }
-    short search_depth=SEARCH_DEPTH, pieces=0, j,k;
+    current_search_depth = search_depth;
+    short pieces=0;
+    short j,k;
     for (j=0;j<8;j++) {
       for (k=0;k<8;k++) {
         if (get_piece_at_position(board_state,j,k)<0) { //number of pieces on black team
@@ -858,13 +860,13 @@ static void change_turn() {
       }
     }
     if (pieces<5) {
-      search_depth++;
+      current_search_depth++;
     }
     if (pieces<3) {
-      search_depth++;
+      current_search_depth++;
     }
 
-    find_move(board_state, turn, search_depth);
+    find_move(board_state, turn, current_search_depth);
   }
 }
 
@@ -1266,7 +1268,20 @@ void chess_config_provider(Window *window) {
   window_long_click_subscribe(BUTTON_ID_SELECT, 1000, chess_reset, NULL);
 }
 
+static void load_setting() {
+  if (persist_exists(CHESS_BOARD_STATE_KEY)) {
+    difficulty = persist_read_int(CHESS_DIFFICULTY_KEY);
+  }
+  if (difficulty == CHESS_EASY) {
+    search_depth = EASY_SEARCH_DEPTH;
+  } else if (difficulty == CHESS_HARD) {
+    search_depth = HARD_SEARCH_DEPTH;
+  }
+}
+
 static void chess_window_load(Window *window) {
+  load_setting();
+
   create_bitmaps();
 
   Layer *window_layer = window_get_root_layer(window);
@@ -1280,17 +1295,17 @@ static void chess_window_load(Window *window) {
   init_board_state();
   
   move_count = 0;
-  if (persist_exists(BOARD_STATE_KEY)) {
-    persist_read_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
+  if (persist_exists(CHESS_BOARD_STATE_KEY)) {
+    persist_read_data(CHESS_BOARD_STATE_KEY, board_state, sizeof(board_state));
   }
-  if (persist_exists(CASTLE_LEFT_KEY)) {
-    white_castle_possible_left = persist_read_int(CASTLE_LEFT_KEY);
+  if (persist_exists(CHESS_CASTLE_LEFT_KEY)) {
+    white_castle_possible_left = persist_read_int(CHESS_CASTLE_LEFT_KEY);
   }
-  if (persist_exists(CASTLE_RIGHT_KEY)) {
-    white_castle_possible_right = persist_read_int(CASTLE_RIGHT_KEY);
+  if (persist_exists(CHESS_CASTLE_RIGHT_KEY)) {
+    white_castle_possible_right = persist_read_int(CHESS_CASTLE_RIGHT_KEY);
   }
-  if (persist_exists(MOVE_NO_KEY)) {
-    move_count = persist_read_int(MOVE_NO_KEY);
+  if (persist_exists(CHESS_MOVE_NO_KEY)) {
+    move_count = persist_read_int(CHESS_MOVE_NO_KEY);
   }
   
   reset_state(possible_moves);
@@ -1304,22 +1319,23 @@ static void chess_window_load(Window *window) {
 
 static void chess_window_unload(Window *window) {
   if (team_won == 0) {
-    persist_write_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
-    persist_write_int(CASTLE_RIGHT_KEY, white_castle_possible_right);
-    persist_write_int(CASTLE_LEFT_KEY, white_castle_possible_left);
-    persist_write_int(MOVE_NO_KEY, move_count);
+    persist_write_data(CHESS_BOARD_STATE_KEY, board_state, sizeof(board_state));
+    persist_write_int(CHESS_CASTLE_RIGHT_KEY, white_castle_possible_right);
+    persist_write_int(CHESS_CASTLE_LEFT_KEY, white_castle_possible_left);
+    persist_write_int(CHESS_MOVE_NO_KEY, move_count);
   } else {
     init_board_state();
-    persist_write_data(BOARD_STATE_KEY, board_state, sizeof(board_state));
-    persist_write_int(CASTLE_RIGHT_KEY, 1);
-    persist_write_int(CASTLE_LEFT_KEY, 1);
-    persist_write_int(MOVE_NO_KEY, 0);
+    persist_write_data(CHESS_BOARD_STATE_KEY, board_state, sizeof(board_state));
+    persist_write_int(CHESS_CASTLE_RIGHT_KEY, 1);
+    persist_write_int(CHESS_CASTLE_LEFT_KEY, 1);
+    persist_write_int(CHESS_MOVE_NO_KEY, 0);
     team_won = 0;
   }
   
   destroy_bitmaps();
   layer_destroy(s_chess_layer);
   window_destroy(s_chess_window);
+  s_chess_window = NULL;
 }
   
 void chess_init() {
