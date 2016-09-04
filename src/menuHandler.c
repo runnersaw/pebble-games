@@ -1,32 +1,10 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "menuHandler.h"
-#include "food.h"
-#include "tennis.h"
-#include "chess.h"
-#include "blackjack.h"
-#include "2048.h"
-#if defined(PBL_COLOR)
-  #include "decrypt.h"
-  #include "cards.h"
-  #include "solitaire.h"
-#endif
+#include "instructionHandler.h"
+#include "textHandler.h"
 
 #define NUM_MENU_SECTIONS 1
-
-#define CHESS_INDEX 0
-#define BLACKJACK_INDEX 1
-#define TWO048_INDEX 2
-#if defined(PBL_COLOR)
-  #define DECRYPT_INDEX 3
-  #define SOLITAIRE_INDEX 4
-  #define FOOD_INDEX 5
-  #define TENNIS_INDEX 6
-  #define ABOUT_INDEX 7
-#else
-  #define FOOD_INDEX 3
-  #define TENNIS_INDEX 4
-  #define ABOUT_INDEX 5
-#endif
 
 #if defined(PBL_COLOR)
   #define NUM_MENU_ICONS 8
@@ -54,13 +32,13 @@ static MenuLayer *s_games_menu;
 static char *about_text_ptr;
 
 static GBitmap *info_icon;
-static GBitmap *chess_icon;
 static GBitmap *tennis_icon;
 static GBitmap *food_icon;
 static GBitmap *blackjack_icon;
 static GBitmap *two048_icon;
+static GBitmap *solitaire_icon;
 #if defined(PBL_COLOR)
-  static GBitmap *solitaire_icon;
+  static GBitmap *chess_icon;
   static GBitmap *decrypt_icon;
 #endif
 
@@ -110,136 +88,69 @@ static void draw_menu(GContext *ctx, const Layer *layer, char *title, GBitmap *b
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
   switch (cell_index->row) {
-    case CHESS_INDEX:
-      draw_menu(ctx, cell_layer, "Chess", chess_icon);
-      break;
-    case BLACKJACK_INDEX:
+    case BLACKJACK:
       draw_menu(ctx, cell_layer, "Blackjack", blackjack_icon);
       break;
-    case TWO048_INDEX:
+    case TWO048:
       draw_menu(ctx, cell_layer, "2048", two048_icon);
       break;
-    case FOOD_INDEX:
+    case FOOD:
       draw_menu(ctx, cell_layer, "FOOD!", food_icon);
       break;
-    case TENNIS_INDEX:
+    case TENNIS:
       draw_menu(ctx, cell_layer, "Tennis", tennis_icon);
       break;
-    case ABOUT_INDEX:
+    case ABOUT:
       draw_menu(ctx, cell_layer, "About", info_icon);
       break;
-    #if defined(PBL_COLOR)
-    case DECRYPT_INDEX:
-      draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
-      break;
-    case SOLITAIRE_INDEX:
+    case SOLITAIRE:
       draw_menu(ctx, cell_layer, "Solitaire", solitaire_icon);
+      break;
+    #if defined(PBL_COLOR)
+    case CHESS:
+      draw_menu(ctx, cell_layer, "Chess", chess_icon);
+      break;
+    case DECRYPT:
+      draw_menu(ctx, cell_layer, "Decrypt", decrypt_icon);
       break;
     #endif
   }
 }
 
-void about_window_load(Window *window) {
-  about_text_ptr = malloc(CHAR_NUM*sizeof(char));
-  ResHandle rh = resource_get_handle(RESOURCE_ID_PEBB_GAMES_ABOUT);
-  resource_load(rh, (uint8_t *)about_text_ptr, CHAR_NUM*sizeof(char));
-
-  Layer *window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_frame(window_layer);    
-  s_about_scroll_layer = scroll_layer_create(bounds);
-
-  GRect text_bounds = GRect(bounds.origin.x, bounds.origin.y, bounds.size.w, HEIGHT);
-  s_about_text_layer = text_layer_create(text_bounds);
-  
-  scroll_layer_add_child(s_about_scroll_layer, text_layer_get_layer(s_about_text_layer));
-  scroll_layer_set_content_size(s_about_scroll_layer, GSize(100,HEIGHT));
-  scroll_layer_set_click_config_onto_window(s_about_scroll_layer, s_about_window);
-  text_layer_set_text(s_about_text_layer, about_text_ptr);
-  text_layer_set_text_alignment(s_about_text_layer, GTextAlignmentCenter);
-  layer_add_child(window_get_root_layer(s_about_window), scroll_layer_get_layer(s_about_scroll_layer));
-
-  #if defined(PBL_ROUND)
-    text_layer_set_overflow_mode(s_about_text_layer, GTextOverflowModeWordWrap);
-    text_layer_enable_screen_text_flow_and_paging(s_about_text_layer, 15);
-    scroll_layer_set_paging(s_about_scroll_layer, true);
-  #endif
-}
-
-void about_window_unload(Window *window) {
-  free(about_text_ptr);
-  text_layer_destroy(s_about_text_layer);
-  scroll_layer_destroy(s_about_scroll_layer);
-  window_destroy(s_about_window);
-}
-
-void about_chosen() {
-  // Create main Window element and assign to pointer
-  s_about_window = window_create();
-
-  // Set handlers to manage the elements inside the Window
-  window_set_window_handlers(s_about_window, (WindowHandlers) {
-    .load = about_window_load,
-    .unload = about_window_unload
-  });
-
-  // Show the Window on the watch, with animated=true
-  window_stack_push(s_about_window, true);
-}
-
-void load_bitmaps() {
+static void load_bitmaps() {
   tennis_icon = gbitmap_create_with_resource(RESOURCE_ID_TENNIS_ICON);
   food_icon = gbitmap_create_with_resource(RESOURCE_ID_FOOD_ICON);
-  chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
   info_icon = gbitmap_create_with_resource(RESOURCE_ID_INFO_ICON);
   blackjack_icon = gbitmap_create_with_resource(RESOURCE_ID_BLACKJACK_ICON);
   two048_icon = gbitmap_create_with_resource(RESOURCE_ID_TWO048_ICON);
+  solitaire_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
   #if defined(PBL_COLOR)
+    chess_icon = gbitmap_create_with_resource(RESOURCE_ID_CHESS_ICON);
     decrypt_icon = gbitmap_create_with_resource(RESOURCE_ID_DECRYPT_ICON);
-    solitaire_icon = gbitmap_create_with_resource(RESOURCE_ID_SOLITAIRE_ICON);
   #endif
 }
 
 static void destroy_bitmaps() {
   gbitmap_destroy(info_icon);
-  gbitmap_destroy(chess_icon);
   gbitmap_destroy(food_icon);
   gbitmap_destroy(tennis_icon);
   gbitmap_destroy(blackjack_icon);
   gbitmap_destroy(two048_icon);
+  gbitmap_destroy(solitaire_icon);
   #if defined(PBL_COLOR)
+    gbitmap_destroy(chess_icon);
     gbitmap_destroy(decrypt_icon);
-    gbitmap_destroy(solitaire_icon);
   #endif
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
   switch (cell_index->row) {
-    case CHESS_INDEX:
-      chess_init();
+    case ABOUT:
+      text_init(ABOUT);
       break;
-    case BLACKJACK_INDEX:
-      blackjack_init();
+    default:
+      instruction_init(cell_index->row);
       break;
-    case TWO048_INDEX:
-      two048_init();
-      break;
-    case FOOD_INDEX:
-      food_init();
-      break;
-    case TENNIS_INDEX:
-      tennis_init();
-      break;
-    case ABOUT_INDEX:
-      about_chosen();
-      break;
-    #if defined(PBL_COLOR)
-    case DECRYPT_INDEX:
-      decrypt_init();
-      break;
-    case SOLITAIRE_INDEX:
-      solitaire_init();
-      break;
-    #endif
   }
 }
 

@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "tennis.h"
 
 #define HEIGHT 100
@@ -232,6 +233,7 @@ static void tennis_window_load(Window *window) {
 static void tennis_window_unload(Window *window) {
   layer_destroy(s_tennis_layer);
   window_destroy(s_tennis_window);
+  s_tennis_window = NULL;
 }
 
 void tennis_init() {  

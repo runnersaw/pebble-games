@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "2048.h"
 
 #if defined(PBL_ROUND)
@@ -10,8 +11,6 @@
 #define UP 1
 #define LEFT 2
 #define DOWN 3
-  
-#define TWO048_BOARD_STATE_KEY 34
 
 static Window *s_2048_window;
 static Layer *s_2048_layer;
@@ -35,9 +34,9 @@ static void add_new_number() {
     if (get_piece(x,y)==0) {
       valid = 1;
       if (value>0) {
-        value = 2;
+        value = 1;
       } else {
-        value = 4;
+        value = 2;
       }
       *(two048_game_state+4*y+x) = value;
     }
@@ -52,6 +51,12 @@ static void init_board_state() {
   }
   add_new_number();
   add_new_number();
+}
+
+static void set_board_state(short state[16]) {
+  for (short i=0;i<16;i++) {
+    *(two048_game_state+i) = state[i];
+  }
 }
 
 static short is_full() {
@@ -87,7 +92,7 @@ static short collapse(short direction) {
       if (value!=0) {
         if (value==prev_value && can_merge==1) {
           // case that it should merge, if prev didn't merge and values are equal
-          out[index-1] = out[index-1]*2;
+          out[index-1] = out[index-1] + 1;
           can_merge = 0;
         } else {
           // case that it should add
@@ -128,32 +133,40 @@ static short collapse(short direction) {
 #if defined(PBL_COLOR)
 static GColor get_color_for_score(short score) {
   GColor color = GColorWhite;
-  if (score == 2) {
+  if (score == 1) {
     color = GColorPastelYellow;
-  } else if (score==4) {
+  } else if (score==2) {
     color = GColorIcterine;
-  } else if (score==8) {
+  } else if (score==3) {
     color = GColorYellow;
-  } else if (score==16) {
+  } else if (score==4) {
     color = GColorRajah;
-  } else if (score==32) {
+  } else if (score==5) {
     color = GColorChromeYellow;
-  } else if (score==64) {
+  } else if (score==6) {
     color = GColorOrange;
-  } else if (score==128) {
+  } else if (score==7) {
     color = GColorRed;
-  } else if (score==256) {
+  } else if (score==8) {
     color = GColorDarkCandyAppleRed;
-  } else if (score==512) {
+  } else if (score==9) {
     color = GColorJazzberryJam;
-  } else if (score==1024) {
+  } else if (score==10) {
     color = GColorPurple;
-  } else if (score==2048) {
+  } else if (score==11) {
     color = GColorIndigo;
-  } else if (score==4096) {
+  } else if (score==12) {
     color = GColorDukeBlue;
-  } else if (score==8192) {
-    color = GColorOxfordBlue;
+  } else if (score==13) {
+    color = GColorCobaltBlue;
+  } else if (score==14) {
+    color = GColorCadetBlue;
+  } else if (score==15) {
+    color = GColorMayGreen;
+  } else if (score==16) {
+    color = GColorIslamicGreen;
+  } else if (score==17) {
+    color = GColorGreen;
   }
   return color;
 }
@@ -181,22 +194,24 @@ static void draw_2048(Layer *layer, GContext *ctx) {
       #endif
       graphics_draw_rect(ctx, GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n, WIDTH/4-1, WIDTH/4-1));
       if (value!=0) {
-        if (value>=1000) {
-          text[0] = (char)(((int)'0')+value/1000);
+        int v = (int)value;
+        int actual_value = (1 << v);
+        if (actual_value>=1000) {
+          text[0] = (char)(((int)'0')+actual_value/1000);
         } else {
           text[0] = ' ';
         }
-        if (value>=100) {
-          text[1] = (char)(((int)'0')+(value/100)%10);
+        if (actual_value>=100) {
+          text[1] = (char)(((int)'0')+(actual_value/100)%10);
         } else {
           text[1] = ' ';
         }
-        if (value>=10) {
-          text[2] = (char)(((int)'0')+(value/10)%10);
+        if (actual_value>=10) {
+          text[2] = (char)(((int)'0')+(actual_value/10)%10);
         } else {
           text[2] = ' ';
         }
-        text[3] = (char)(((int)'0')+value%10);
+        text[3] = (char)(((int)'0')+actual_value%10);
         text[4] = '\0';
         #if defined(PBL_ROUND)
           graphics_draw_text(ctx, text, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect((size.w-WIDTH)/2+WIDTH/4*m, (size.w-WIDTH)/2+WIDTH/4*n+WIDTH/8-15, WIDTH/4, 30), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -270,6 +285,9 @@ static void window_load(Window *window) {
   } else {
     init_board_state();
   }
+
+  //short state[16] = {2, 3, 5, 1, 4, 9, 8, 4, 5, 3, 4, 3, 1, 0, 1, 1};
+  //set_board_state(state);
   
   background = gbitmap_create_with_resource(RESOURCE_ID_GRAY_BACKGROUND);
 
@@ -283,6 +301,7 @@ static void window_unload(Window *window) {
   free(two048_game_state);
   layer_destroy(s_2048_layer);
   window_destroy(s_2048_window);
+  s_2048_window = NULL;
 }
 
 void two048_init(void) {

@@ -1,3 +1,5 @@
 Use the UP and DOWN buttons to go up and down. Use SELECT to move right, and BACK to move left.
+
 Hold the UP button to save the game and exit.
+
 Hold the SELECT button to reset the game.

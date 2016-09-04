@@ -1,12 +1,11 @@
 #include <pebble.h>
+#include "pebble-games.h"
 #include "blackjack.h"
 #include "cards.h"
   
 #define CARD_HEIGHT 40
 #define CARD_WIDTH 20
 #define ANIMATION_TIME 800
-#define BLACKJACK_PERSON_SCORE_KEY 122
-#define BLACKJACK_DEALER_SCORE_KEY 428
 #define SCORE_HEIGHT 22
 #define SCORE_WIDTH 30
 #define MARGIN 0
@@ -421,6 +420,7 @@ static void blackjack_window_unload(Window *window) {
   layer_destroy(s_blackjack_layer);
   action_bar_layer_destroy(s_blackjack_actionbar);
   window_destroy(s_blackjack_window);
+  s_blackjack_window = NULL;
 }
 
 void blackjack_init() {

@@ -1,4 +1,7 @@
 Use the UP button to turn left, and the DOWN button to turn right.
+
 Press SELECT to pause the game. 
+
 Hold SELECT to reset the game.
+
 Use BACK to exit.
