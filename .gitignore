@@ -3,3 +3,7 @@ build/
 
 *~
 /pebble-screenshot*
+
+node_modules/
+.DS_Store
+

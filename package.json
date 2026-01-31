@@ -1,0 +1,221 @@
+{
+  "name": "games-for-pebble",
+  "author": "Sawyer Vaughan",
+  "version": "6.0.0",
+  "private": true,
+  "keywords": [
+    "pebble-app"
+  ],
+  "dependencies": {},
+  "pebble": {
+    "sdkVersion": "3",
+    "enableMultiJS": false,
+    "capabilities": [
+      ""
+    ],
+    "projectType": "native",
+    "displayName": "Games for Pebble",
+    "uuid": "446eba0a-3006-40a9-a035-7000d5b99834",
+    "watchapp": {
+      "watchface": false,
+      "hiddenApp": false,
+      "onlyShownOnCommunication": false
+    },
+    "resources": {
+      "media": [
+        {
+          "file": "images/food_icon.png",
+          "name": "FOOD_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/info_icon.png",
+          "name": "INFO_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/chess_icon.png",
+          "name": "CHESS_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/tennis-icon.png",
+          "name": "TENNIS_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/game-icon.png",
+          "menuIcon": true,
+          "name": "GAMES_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/clubs.png",
+          "name": "CLUBS_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/spades.png",
+          "name": "SPADES_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/blackjack-icon.png",
+          "name": "BLACKJACK_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_bishop_in_black.png",
+          "name": "BLACK_BISHOP_BLACK",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_king_in_black.png",
+          "name": "BLACK_KING_BLACK",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_knight_in_black.png",
+          "name": "BLACK_KNIGHT_BLACK",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_pawn_in_black.png",
+          "name": "BLACK_PAWN_BLACK",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_queen_in_black.png",
+          "name": "BLACK_QUEEN_BLACK",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_rook_in_black.png",
+          "name": "BLACK_ROOK_BLACK",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/down_arrow.png",
+          "name": "DOWN_ARROW",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_bishop_in_white.png",
+          "name": "BLACK_BISHOP_WHITE",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_knight_in_white.png",
+          "name": "BLACK_KNIGHT_WHITE",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_pawn_in_white.png",
+          "name": "BLACK_PAWN_WHITE",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_queen_in_white.png",
+          "name": "BLACK_QUEEN_WHITE",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_rook_in_white.png",
+          "name": "BLACK_ROOK_WHITE",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/black_king_in_white.png",
+          "name": "BLACK_KING_WHITE",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/hearts.png",
+          "name": "HEARTS_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/diamonds.png",
+          "name": "DIAMONDS_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/hit.png",
+          "name": "HIT_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "data/start_chess.raw",
+          "name": "START_CHESS",
+          "type": "raw"
+        },
+        {
+          "file": "data/PebbGames.txt",
+          "name": "PEBB_GAMES_ABOUT",
+          "type": "raw"
+        },
+        {
+          "file": "data/2048-instructions.txt",
+          "name": "TWO048_INSTRUCTIONS",
+          "type": "raw"
+        },
+        {
+          "file": "data/blackjack-instructions.txt",
+          "name": "BLACKJACK_INSTRUCTIONS",
+          "type": "raw"
+        },
+        {
+          "file": "data/chess-instructions.txt",
+          "name": "CHESS_INSTRUCTIONS",
+          "type": "raw"
+        },
+        {
+          "file": "data/decrypt-instructions.txt",
+          "name": "DECRYPT_INSTRUCTIONS",
+          "type": "raw"
+        },
+        {
+          "file": "data/food-instructions.txt",
+          "name": "FOOD_INSTRUCTIONS",
+          "type": "raw"
+        },
+        {
+          "file": "data/solitaire-instructions.txt",
+          "name": "SOLITAIRE_INSTRUCTIONS",
+          "type": "raw"
+        },
+        {
+          "file": "data/tennis-instructions.txt",
+          "name": "TENNIS_INSTRUCTIONS",
+          "type": "raw"
+        },
+        {
+          "file": "images/2048_icon.png",
+          "name": "TWO048_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/decrypt_icon.png",
+          "name": "DECRYPT_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/solitaire_icon.png",
+          "name": "SOLITAIRE_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/gray_background.png",
+          "name": "GRAY_BACKGROUND",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/done.png",
+          "name": "DONE_ICON",
+          "type": "bitmap"
+        }
+      ]
+    },
+    "messageKeys": {}
+  }
+}
